@@ -29,6 +29,7 @@ class TimerController extends ChangeNotifier {
   Duration _total = Duration.zero;
   DateTime? _startTime;
   Duration _pausedTotal = Duration.zero;
+  DateTime? _pausedAt;
   double _progressHighWaterMark = 0.0;
   Timer? _ticker;
 
@@ -49,10 +50,18 @@ class TimerController extends ChangeNotifier {
 
   /// Elapsed time since [_startTime], minus paused time, floored at zero so a
   /// backward clock movement cannot produce a negative elapsed duration.
+  ///
+  /// While [_phase] is [TimerPhase.paused], elapsed is measured up to the
+  /// frozen [_pausedAt] instant rather than the live clock, so progress does
+  /// not advance while paused. While running, elapsed is measured against the
+  /// live injected clock, which is what makes backgrounding "just work" —
+  /// elapsed is always derived from real timestamps, never from a running
+  /// Stopwatch that the OS could throttle.
   Duration get _elapsed {
     final start = _startTime;
     if (start == null) return Duration.zero;
-    final delta = _clock().difference(start) - _pausedTotal;
+    final now = _phase == TimerPhase.paused ? (_pausedAt ?? _clock()) : _clock();
+    final delta = now.difference(start) - _pausedTotal;
     return delta.isNegative ? Duration.zero : delta;
   }
 
@@ -68,6 +77,49 @@ class TimerController extends ChangeNotifier {
     _phase = TimerPhase.running;
     _ticker?.cancel();
     _ticker = Timer.periodic(_tickInterval, (_) => syncToWallClock());
+    notifyListeners();
+  }
+
+  /// Freezes the countdown: no-op unless [phase] is [TimerPhase.running].
+  /// Records the paused-at instant from the injected clock so [_elapsed]
+  /// stops advancing while paused. Per locked decision D-01, pause() is only
+  /// ever an explicit parent action — backgrounding must never call this.
+  void pause() {
+    if (_phase != TimerPhase.running) return;
+    _pausedAt = _clock();
+    _phase = TimerPhase.paused;
+    notifyListeners();
+  }
+
+  /// Resumes the countdown: no-op unless [phase] is [TimerPhase.paused].
+  /// Adds the just-elapsed paused interval to [_pausedTotal] so it is
+  /// permanently excluded from elapsed time, then restarts the periodic
+  /// reconcile ticker.
+  void resume() {
+    if (_phase != TimerPhase.paused) return;
+    final pausedAt = _pausedAt;
+    if (pausedAt != null) {
+      _pausedTotal += _clock().difference(pausedAt);
+    }
+    _pausedAt = null;
+    _phase = TimerPhase.running;
+    _ticker?.cancel();
+    _ticker = Timer.periodic(_tickInterval, (_) => syncToWallClock());
+    notifyListeners();
+  }
+
+  /// Ends the current timer from any phase, returning the controller to
+  /// [TimerPhase.setup] with progress reset to zero. Does not persist
+  /// anything (D-03) — an ended or killed timer leaves no at-rest state.
+  void endTimer() {
+    _ticker?.cancel();
+    _ticker = null;
+    _total = Duration.zero;
+    _startTime = null;
+    _pausedAt = null;
+    _pausedTotal = Duration.zero;
+    _progressHighWaterMark = 0.0;
+    _phase = TimerPhase.setup;
     notifyListeners();
   }
 
