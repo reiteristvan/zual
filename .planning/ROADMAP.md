@@ -37,7 +37,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Backgrounding the app mid-run and returning shows progress consistent with real elapsed time (no reset, no drift).
   4. The screen does not sleep while a timer is running, and normal sleep behavior returns once the timer ends.
   5. The engine moves through setup → running → (paused) → done and exposes a normalized 0..1 progress value.
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 01-01-PLAN.md — Wall-clock progress engine: TimerPhase enum + TimerController (start/progress/done) with deterministic tests (TIMER-01, TIMER-02)
+- [ ] 01-02-PLAN.md — Pause/resume, backgrounding reconciliation, screen-wake, and app-root wiring (TIMER-01, TIMER-03, TIMER-04, TIMER-05)
 
 ### Phase 2: Setup Screen
 **Goal**: A parent can configure a countdown — duration and scene — and launch it, matching Layout A of the design spec, with last-used settings pre-selected.
@@ -99,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Timer State-Machine Foundation | 0/TBD | Not started | - |
+| 1. Timer State-Machine Foundation | 0/2 | Not started | - |
 | 2. Setup Screen | 0/TBD | Not started | - |
 | 3. Scene Themes | 0/TBD | Not started | - |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
