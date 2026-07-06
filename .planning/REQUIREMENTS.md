@@ -80,34 +80,34 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TIMER-01 | TBD | Pending |
-| TIMER-02 | TBD | Pending |
-| TIMER-03 | TBD | Pending |
-| TIMER-04 | TBD | Pending |
-| TIMER-05 | TBD | Pending |
-| SETUP-01 | TBD | Pending |
-| SETUP-02 | TBD | Pending |
-| SETUP-03 | TBD | Pending |
-| SETUP-04 | TBD | Pending |
-| SETUP-05 | TBD | Pending |
-| SCENE-01 | TBD | Pending |
-| SCENE-02 | TBD | Pending |
-| SCENE-03 | TBD | Pending |
-| SCENE-04 | TBD | Pending |
-| SCENE-05 | TBD | Pending |
-| CTRL-01 | TBD | Pending |
-| CTRL-02 | TBD | Pending |
-| CTRL-03 | TBD | Pending |
-| CTRL-04 | TBD | Pending |
-| PERSIST-01 | TBD | Pending |
-| PUBLISH-01 | TBD | Pending |
-| PUBLISH-02 | TBD | Pending |
+| TIMER-01 | Phase 1 | Pending |
+| TIMER-02 | Phase 1 | Pending |
+| TIMER-03 | Phase 1 | Pending |
+| TIMER-04 | Phase 1 | Pending |
+| TIMER-05 | Phase 1 | Pending |
+| SETUP-01 | Phase 2 | Pending |
+| SETUP-02 | Phase 2 | Pending |
+| SETUP-03 | Phase 2 | Pending |
+| SETUP-04 | Phase 2 | Pending |
+| SETUP-05 | Phase 2 | Pending |
+| SCENE-01 | Phase 3 | Pending |
+| SCENE-02 | Phase 3 | Pending |
+| SCENE-03 | Phase 3 | Pending |
+| SCENE-04 | Phase 3 | Pending |
+| SCENE-05 | Phase 3 | Pending |
+| CTRL-01 | Phase 4 | Pending |
+| CTRL-02 | Phase 4 | Pending |
+| CTRL-03 | Phase 4 | Pending |
+| CTRL-04 | Phase 4 | Pending |
+| PERSIST-01 | Phase 2 | Pending |
+| PUBLISH-01 | Phase 5 | Pending |
+| PUBLISH-02 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 22 total
-- Mapped to phases: 0 (roadmap not yet created)
-- Unmapped: 22 ⚠️
+- Mapped to phases: 22 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-06*
-*Last updated: 2026-07-06 after initial definition*
+*Last updated: 2026-07-06 after roadmap creation*
