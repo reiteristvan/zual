@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'screen_wake.dart';
 import 'timer_phase.dart';
 
 /// The minimum allowed timer duration in minutes.
@@ -18,12 +19,17 @@ const int _maxMinutes = 120;
 /// rate, and correct even if the app is backgrounded and its timers are
 /// throttled or paused by the OS.
 class TimerController extends ChangeNotifier {
-  TimerController({DateTime Function()? clock, Duration? tickInterval})
-    : _clock = clock ?? DateTime.now,
-      _tickInterval = tickInterval ?? const Duration(milliseconds: 200);
+  TimerController({
+    DateTime Function()? clock,
+    Duration? tickInterval,
+    ScreenWake? screenWake,
+  }) : _clock = clock ?? DateTime.now,
+       _tickInterval = tickInterval ?? const Duration(milliseconds: 200),
+       _screenWake = screenWake ?? const NoopScreenWake();
 
   final DateTime Function() _clock;
   final Duration _tickInterval;
+  final ScreenWake _screenWake;
 
   TimerPhase _phase = TimerPhase.setup;
   Duration _total = Duration.zero;
@@ -77,6 +83,7 @@ class TimerController extends ChangeNotifier {
     _phase = TimerPhase.running;
     _ticker?.cancel();
     _ticker = Timer.periodic(_tickInterval, (_) => syncToWallClock());
+    _screenWake.enable();
     notifyListeners();
   }
 
@@ -88,6 +95,7 @@ class TimerController extends ChangeNotifier {
     if (_phase != TimerPhase.running) return;
     _pausedAt = _clock();
     _phase = TimerPhase.paused;
+    _screenWake.disable();
     notifyListeners();
   }
 
@@ -105,6 +113,7 @@ class TimerController extends ChangeNotifier {
     _phase = TimerPhase.running;
     _ticker?.cancel();
     _ticker = Timer.periodic(_tickInterval, (_) => syncToWallClock());
+    _screenWake.enable();
     notifyListeners();
   }
 
@@ -120,6 +129,7 @@ class TimerController extends ChangeNotifier {
     _pausedTotal = Duration.zero;
     _progressHighWaterMark = 0.0;
     _phase = TimerPhase.setup;
+    _screenWake.disable();
     notifyListeners();
   }
 
@@ -127,8 +137,8 @@ class TimerController extends ChangeNotifier {
   /// time and transitions to [TimerPhase.done] once elapsed time reaches the
   /// total duration. Completion is a pure function of elapsed time, so this
   /// method produces the correct result whether it is invoked by the
-  /// periodic ticker or by a foreground-return lifecycle hook (added in
-  /// Plan 02).
+  /// periodic ticker or by a foreground-return lifecycle hook
+  /// (`TimerLifecycleBinder`), which realizes done-while-backgrounded.
   void syncToWallClock() {
     if (_total.inMilliseconds != 0) {
       final rawFraction = (_elapsed.inMilliseconds / _total.inMilliseconds)
@@ -143,6 +153,7 @@ class TimerController extends ChangeNotifier {
       _ticker?.cancel();
       _ticker = null;
       _progressHighWaterMark = 1.0;
+      _screenWake.disable();
     }
 
     notifyListeners();
