@@ -77,6 +77,130 @@ void main() {
       controller.dispose();
     });
 
+    test('pause() from running freezes progress at the paused instant', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final controller = TimerController(clock: () => now);
+
+      controller.start(10); // 10 minutes total
+      now = now.add(const Duration(minutes: 3));
+      controller.syncToWallClock();
+      final progressAtPause = controller.progress;
+
+      controller.pause();
+      expect(controller.phase, TimerPhase.paused);
+
+      now = now.add(const Duration(minutes: 5)); // time passes while paused
+      expect(controller.progress, progressAtPause);
+      expect(controller.phase, TimerPhase.paused);
+
+      controller.dispose();
+    });
+
+    test('pause() is a no-op unless running; resume() is a no-op unless paused', () {
+      final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+
+      controller.pause(); // no-op from setup
+      expect(controller.phase, TimerPhase.setup);
+
+      controller.resume(); // no-op from setup
+      expect(controller.phase, TimerPhase.setup);
+
+      controller.start(5);
+      controller.resume(); // no-op from running (not paused)
+      expect(controller.phase, TimerPhase.running);
+
+      controller.dispose();
+    });
+
+    test('resume() excludes the paused interval from elapsed active time', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final controller = TimerController(clock: () => now);
+
+      controller.start(5); // 5 minutes total
+      now = now.add(const Duration(minutes: 1));
+      controller.syncToWallClock();
+
+      controller.pause();
+      now = now.add(const Duration(minutes: 2)); // paused interval, excluded
+      controller.syncToWallClock(); // still paused; no phase transition
+      expect(controller.phase, TimerPhase.paused);
+
+      controller.resume();
+      expect(controller.phase, TimerPhase.running);
+
+      now = now.add(const Duration(minutes: 4)); // 1 + 4 = 5 min of active time
+      controller.syncToWallClock();
+
+      // The paused interval (2 min) is excluded: only 1 + 4 = 5 min of active
+      // time elapsed, so the timer is exactly done here — 2 minutes later in
+      // wall-clock terms (1 + 2 + 4 = 7 min total) than an uninterrupted run.
+      expect(controller.phase, TimerPhase.done);
+      expect(controller.progress, 1.0);
+
+      controller.dispose();
+    });
+
+    test(
+      'backgrounding past total duration reaches done via a single syncToWallClock() call',
+      () {
+        var now = DateTime(2026, 1, 1, 12, 0, 0);
+        final controller = TimerController(clock: () => now);
+
+        controller.start(5);
+        now = now.add(const Duration(minutes: 5, seconds: 1)); // no ticks fire
+        controller.syncToWallClock();
+
+        expect(controller.phase, TimerPhase.done);
+        expect(controller.progress, 1.0);
+
+        controller.dispose();
+      },
+    );
+
+    test('backgrounding mid-run reconciles to real elapsed progress with no reset', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final controller = TimerController(clock: () => now);
+
+      controller.start(10);
+      now = now.add(const Duration(minutes: 4)); // clock jumps, no ticks fire
+      controller.syncToWallClock();
+
+      expect(controller.phase, TimerPhase.running);
+      expect(controller.progress, closeTo(0.4, 0.01));
+
+      controller.dispose();
+    });
+
+    test('endTimer() resets to setup and progress 0.0 from running, paused, and done', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final runningController = TimerController(clock: () => now);
+      runningController.start(5);
+      runningController.endTimer();
+      expect(runningController.phase, TimerPhase.setup);
+      expect(runningController.progress, 0.0);
+      runningController.dispose();
+
+      var now2 = DateTime(2026, 1, 1, 12, 0, 0);
+      final pausedController = TimerController(clock: () => now2);
+      pausedController.start(5);
+      pausedController.pause();
+      pausedController.endTimer();
+      expect(pausedController.phase, TimerPhase.setup);
+      expect(pausedController.progress, 0.0);
+      pausedController.dispose();
+
+      var now3 = DateTime(2026, 1, 1, 12, 0, 0);
+      final doneController = TimerController(clock: () => now3);
+      doneController.start(1);
+      now3 = now3.add(const Duration(minutes: 1, seconds: 5));
+      doneController.syncToWallClock();
+      expect(doneController.phase, TimerPhase.done);
+      doneController.endTimer();
+      expect(doneController.phase, TimerPhase.setup);
+      expect(doneController.progress, 0.0);
+      doneController.dispose();
+    });
+
     test('start() clamps minutes into the inclusive range 1..120', () {
       var now = DateTime(2026, 1, 1, 12, 0, 0);
       final controllerLow = TimerController(clock: () => now);
