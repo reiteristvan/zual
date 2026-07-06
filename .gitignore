@@ -6,6 +6,14 @@
 *.swp
 .buildlog/
 .history
+.metadata
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
 
 
 
