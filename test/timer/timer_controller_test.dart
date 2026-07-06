@@ -1,7 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:zual/timer/screen_wake.dart';
 import 'package:zual/timer/timer_controller.dart';
 import 'package:zual/timer/timer_phase.dart';
+
+/// Test double recording enable()/disable() call counts, so screen-wake
+/// pairing to running-phase entry/exit can be asserted without touching the
+/// real wakelock_plus plugin.
+class FakeScreenWake implements ScreenWake {
+  int enableCalls = 0;
+  int disableCalls = 0;
+
+  @override
+  Future<void> enable() async {
+    enableCalls++;
+  }
+
+  @override
+  Future<void> disable() async {
+    disableCalls++;
+  }
+}
 
 void main() {
   group('TimerController', () {
@@ -225,6 +244,66 @@ void main() {
       controllerMid.syncToWallClock();
       expect(controllerMid.phase, TimerPhase.running); // not yet done at 119 of 120
       controllerMid.dispose();
+    });
+  });
+
+  group('TimerController screen wake', () {
+    test('start() enables screen wake exactly once on running entry', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final wake = FakeScreenWake();
+      final controller = TimerController(clock: () => now, screenWake: wake);
+
+      controller.start(5);
+
+      expect(wake.enableCalls, 1);
+      expect(wake.disableCalls, 0);
+
+      controller.dispose();
+    });
+
+    test('pause() disables screen wake; resume() enables it again', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final wake = FakeScreenWake();
+      final controller = TimerController(clock: () => now, screenWake: wake);
+
+      controller.start(5);
+      expect(wake.enableCalls, 1);
+
+      controller.pause();
+      expect(wake.disableCalls, 1);
+
+      controller.resume();
+      expect(wake.enableCalls, 2);
+
+      controller.dispose();
+    });
+
+    test('reaching done via syncToWallClock() disables screen wake', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final wake = FakeScreenWake();
+      final controller = TimerController(clock: () => now, screenWake: wake);
+
+      controller.start(1); // 1 minute total
+      now = now.add(const Duration(minutes: 1, seconds: 5));
+      controller.syncToWallClock();
+
+      expect(controller.phase, TimerPhase.done);
+      expect(wake.disableCalls, 1);
+
+      controller.dispose();
+    });
+
+    test('endTimer() disables screen wake', () {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final wake = FakeScreenWake();
+      final controller = TimerController(clock: () => now, screenWake: wake);
+
+      controller.start(5);
+      controller.endTimer();
+
+      expect(wake.disableCalls, 1);
+
+      controller.dispose();
     });
   });
 }
