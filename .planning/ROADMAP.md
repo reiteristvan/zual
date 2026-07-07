@@ -102,7 +102,7 @@ Plans:
   4. All scenes are driven solely by the shared 0..1 progress value via a common scene-renderer contract, and nothing on the running screen is tappable by the child.
   5. Scenes animate smoothly without visible jank on a mid/low-end Android device.
 
-**Plans**: 1/3 plans executed
+**Plans**: 2/3 plans executed
 **UI hint**: yes
 
 Plans:
@@ -112,7 +112,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 03-02-PLAN.md — Night to Sunrise scene: gradient sky, fading stars/moon, rising sun, warming hill (SCENE-02)
+- [x] 03-02-PLAN.md — Night to Sunrise scene: gradient sky, fading stars/moon, rising sun, warming hill (SCENE-02)
 
 **Wave 3** *(blocked on Wave 2 completion — shared scene_registry.dart)*
 
@@ -158,6 +158,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
-| 3. Scene Themes | 1/3 | In Progress|  |
+| 3. Scene Themes | 2/3 | In Progress|  |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
