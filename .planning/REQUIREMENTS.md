@@ -40,7 +40,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Persistence
 
-- [ ] **PERSIST-01**: App remembers the last-used duration and theme locally and pre-selects them on next launch
+- [x] **PERSIST-01**: App remembers the last-used duration and theme locally and pre-selects them on next launch
 
 ### Play Store Readiness
 
@@ -99,7 +99,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-02 | Phase 4 | Pending |
 | CTRL-03 | Phase 4 | Pending |
 | CTRL-04 | Phase 4 | Pending |
-| PERSIST-01 | Phase 2 | Pending |
+| PERSIST-01 | Phase 2 | Complete |
 | PUBLISH-01 | Phase 5 | Pending |
 | PUBLISH-02 | Phase 5 | Pending |
 
