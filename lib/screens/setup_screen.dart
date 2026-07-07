@@ -10,7 +10,7 @@ import '../timer/timer_controller.dart';
 import '../widgets/hold_repeat_button.dart';
 import '../widgets/pressable_surface.dart';
 import '../widgets/scene_grid.dart';
-import 'placeholder_running_screen.dart';
+import 'running_screen.dart';
 
 /// The parent-facing home screen: pick a countdown duration and a scene,
 /// then tap Start to launch the timer.
@@ -101,9 +101,9 @@ class _SetupScreenState extends State<SetupScreen> {
   int get _selectedMinutes => _showCustom ? _customMin : _durationMin;
 
   /// Starts the countdown with the currently selected duration and hands off
-  /// to the placeholder running screen. Start is a one-line call into
-  /// [TimerController]'s existing public API — this screen never reaches
-  /// into `lib/timer/` internals.
+  /// to [RunningScreen]. Start is a one-line call into [TimerController]'s
+  /// existing public API — this screen never reaches into `lib/timer/`
+  /// internals.
   ///
   /// Also persists the current selection via [SetupPreferences.persistIfPreset]
   /// (PERSIST-01, D-10): theme is always written; duration is written only
@@ -121,7 +121,7 @@ class _SetupScreenState extends State<SetupScreen> {
       ).catchError((_) {}),
     );
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const PlaceholderRunningScreen()),
+      MaterialPageRoute(builder: (_) => RunningScreen(theme: _theme)),
     );
   }
 
