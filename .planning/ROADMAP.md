@@ -118,6 +118,10 @@ Plans:
 
 - [x] 03-03-PLAN.md — Walking Home + Car on a Road (shared arrival mechanic); finalize exhaustive registry (SCENE-03, SCENE-04)
 
+**Wave 4** *(gap closure — CR-01 / Truth #8)*
+
+- [ ] 03-04-PLAN.md — Car wheel visible-spin fix: asymmetric spoke marking + raster-diff regression test (SCENE-04)
+
 ### Phase 4: Parent Controls & Completion
 
 **Goal**: A parent can discreetly control a running timer, and completion resolves into a calm, wordless finished state with a soft chime.
