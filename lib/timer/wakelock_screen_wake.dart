@@ -10,8 +10,8 @@ class WakelockScreenWake implements ScreenWake {
   const WakelockScreenWake();
 
   @override
-  Future<void> enable() => WakelockPlus.enable();
+  Future<void> enable() => WakelockPlus.enable().catchError((_) {});
 
   @override
-  Future<void> disable() => WakelockPlus.disable();
+  Future<void> disable() => WakelockPlus.disable().catchError((_) {});
 }
