@@ -134,4 +134,45 @@ abstract class AppTokens {
     fontWeight: FontWeight.w600,
     color: Color(0xD9FFFDF7), // startLabel @ ~0.85 opacity
   );
+
+  /// "Custom" button label — 19/700, ink.
+  static const TextStyle customLabel = TextStyle(
+    fontSize: 19,
+    fontWeight: FontWeight.w700,
+    color: ink,
+    height: 1.05,
+  );
+
+  /// "Custom" button sublabel ("set your own") — 11/600, soft ink.
+  static const TextStyle customSublabel = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w600,
+    color: inkSoft,
+  );
+
+  /// Custom stepper glyphs ("−"/"+") — 26/700, ink.
+  static const TextStyle stepperGlyph = TextStyle(
+    fontSize: 26,
+    fontWeight: FontWeight.w700,
+    color: ink,
+    height: 1.0,
+  );
+
+  /// Custom stepper value (e.g. "12") — 36/700, ink.
+  static const TextStyle stepperValue = TextStyle(
+    fontSize: 36,
+    fontWeight: FontWeight.w700,
+    color: ink,
+    height: 1.0,
+  );
+
+  /// Custom stepper unit ("minutes") — 12/600, soft ink. Same values as
+  /// [presetUnit] today (both are "small soft-ink unit captions" per
+  /// UI-SPEC); kept as its own named token since the two roles are free to
+  /// diverge later without one accidentally changing the other.
+  static const TextStyle stepperUnit = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+    color: inkSoft,
+  );
 }

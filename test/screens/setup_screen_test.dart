@@ -158,6 +158,8 @@ void main() {
         await tester.tap(find.text('Custom'));
         await tester.pump();
 
+        await tester.ensureVisible(find.byKey(const ValueKey('stepper-plus')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const ValueKey('stepper-plus')));
         await tester.pump();
         expect(find.text('4'), findsOneWidget);
@@ -188,12 +190,18 @@ void main() {
         await tester.tap(find.text('Custom'));
         await tester.pump();
 
+        await tester.ensureVisible(find.byKey(const ValueKey('stepper-minus')));
+        await tester.pumpAndSettle();
+
         // Default customMin is 3 -- two taps reach the 1-minute floor.
+        // (The stepper value's own key is used rather than find.text('1')
+        // because "1" also matches the unrelated "1 min" preset card.)
+        final stepperValue = find.byKey(const ValueKey('stepper-value'));
         await tester.tap(find.byKey(const ValueKey('stepper-minus')));
         await tester.pump();
         await tester.tap(find.byKey(const ValueKey('stepper-minus')));
         await tester.pump();
-        expect(find.text('1'), findsOneWidget);
+        expect(tester.widget<Text>(stepperValue).data, '1');
 
         final minusButton = tester.widget<HoldRepeatButton>(
           find.byKey(const ValueKey('stepper-minus')),
@@ -205,8 +213,7 @@ void main() {
         // had a bug) -- the clamp inside the setter must still hold at 1.
         minusButton.onStep();
         await tester.pump();
-        expect(find.text('1'), findsOneWidget);
-        expect(find.text('0'), findsNothing);
+        expect(tester.widget<Text>(stepperValue).data, '1');
 
         controller.dispose();
       },
@@ -274,12 +281,20 @@ void main() {
 
         await tester.tap(find.text('Custom'));
         await tester.pump();
+        await tester.ensureVisible(find.byKey(const ValueKey('stepper-plus')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const ValueKey('stepper-plus')));
         await tester.pump();
         expect(find.text('4'), findsOneWidget);
 
+        await tester.ensureVisible(find.text('10'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('10')); // closes Custom
         await tester.pump();
+        expect(find.byKey(const ValueKey('stepper-minus')), findsNothing);
+
+        await tester.ensureVisible(find.text('Custom'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Custom')); // reopens
         await tester.pump();
 
