@@ -102,8 +102,21 @@ Plans:
   4. All scenes are driven solely by the shared 0..1 progress value via a common scene-renderer contract, and nothing on the running screen is tappable by the child.
   5. Scenes animate smoothly without visible jank on a mid/low-end Android device.
 
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Scene architecture spine (SceneRenderer + per-scene ticker, registry, RunningScreen) + Shrinking Disc end-to-end (SCENE-01, SCENE-05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-02-PLAN.md — Night to Sunrise scene: gradient sky, fading stars/moon, rising sun, warming hill (SCENE-02)
+
+**Wave 3** *(blocked on Wave 2 completion — shared scene_registry.dart)*
+
+- [ ] 03-03-PLAN.md — Walking Home + Car on a Road (shared arrival mechanic); finalize exhaustive registry (SCENE-03, SCENE-04)
 
 ### Phase 4: Parent Controls & Completion
 
