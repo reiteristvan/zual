@@ -25,6 +25,7 @@ without any numbers or words, roughly how much longer they have to wait.
 ### Validated
 
 - ✓ Flutter project scaffolded with web + Android platform support — existing scaffold (pre-Zual)
+- ✓ Shared countdown/progress state machine (`setup → running → paused → done`), driven by wall-clock time, surviving pause/resume and backgrounding, with screen-wake tied to the running phase — Phase 1
 
 ### Active
 
@@ -34,7 +35,6 @@ without any numbers or words, roughly how much longer they have to wait.
 - [ ] Night to Sunrise theme: sky interpolates night→day, stars/moon fade, sun rises, hill warms
 - [ ] Walking Home theme: character walks a path toward a house, arrives at time-up
 - [ ] Car on a Road theme: car drives a path toward a destination, arrives at time-up
-- [ ] Shared countdown/progress state machine (`setup → running → done`, `paused` substate) driving all 4 themes
 - [ ] Completed state: soft two-tone chime, theme settles into end visual, breathing "All done" pill to return to Setup
 - [ ] Parent controls overlay: hidden ~850ms long-press on running screen opens bottom sheet (Pause/Resume, End timer, Keep watching)
 - [ ] Pixel-accurate implementation of design tokens (colors, typography, radii, spacing, shadows) from `design/README.md`
@@ -69,7 +69,8 @@ without any numbers or words, roughly how much longer they have to wait.
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Build in Flutter on the existing scaffold, not React Native/SwiftUI as the design doc suggests | Repo already has a working Flutter Hello World scaffold (web + Android); no reason to discard it | — Pending |
+| Build in Flutter on the existing scaffold, not React Native/SwiftUI as the design doc suggests | Repo already has a working Flutter Hello World scaffold (web + Android); no reason to discard it | ✓ Good — Phase 1 shipped clean with `provider` + `ChangeNotifier`, no framework friction |
+| Use wall-clock (`DateTime.now()`) deltas instead of research's recommended `Stopwatch` for the timer engine | `Stopwatch` doesn't reliably count time while the device is backgrounded/asleep on Android, but locked decision D-01 requires the countdown to keep advancing (and reach done) while backgrounded | ✓ Good — Phase 1, verified via background-reconciliation tests |
 | Android only for v1 | Simplifies initial scope; existing scaffold supports web too but that's deferred | — Pending |
 | Build all 4 themes in the same phase rather than disc-first | Themes share the same underlying timer state machine and color-zone logic; splitting adds phase overhead without much isolation benefit | — Pending |
 | Publish to Play Store (not just personal use) | User's stated intent | — Pending |
@@ -92,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-06 after initialization*
+*Last updated: 2026-07-07 after Phase 1: Timer State-Machine Foundation*
