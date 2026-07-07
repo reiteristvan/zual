@@ -117,7 +117,7 @@ class _SetupScreenState extends State<SetupScreen> {
         showCustom: _showCustom,
         durationMin: _durationMin,
         theme: _theme,
-      ),
+      ).catchError((_) {}),
     );
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const PlaceholderRunningScreen()),
