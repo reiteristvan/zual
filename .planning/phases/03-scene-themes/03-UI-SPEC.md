@@ -1,7 +1,7 @@
 ---
 phase: 3
 slug: scene-themes
-status: draft
+status: approved
 shadcn_initialized: false
 preset: not applicable (Flutter/Android stack, not React/Next/Vite)
 created: 2026-07-07
