@@ -20,10 +20,22 @@ class PlaceholderRunningScreen extends StatefulWidget {
 }
 
 class _PlaceholderRunningScreenState extends State<PlaceholderRunningScreen> {
-  /// Guards the auto-pop-on-done navigation so it fires exactly once, even
-  /// though `build` (and therefore this check) re-runs on every
-  /// [TimerController] notification while phase stays [TimerPhase.done].
-  bool _popped = false;
+  /// Guards *both* exit paths (manual back tap and the auto-pop-on-done
+  /// post-frame callback) so at most one of them ever calls
+  /// `Navigator.pop()`. `build` (and therefore the auto-pop check) re-runs
+  /// on every [TimerController] notification while phase stays
+  /// [TimerPhase.done], and `mounted` alone does not become `false`
+  /// synchronously on `pop()` -- a manual back tap can race an
+  /// already-scheduled auto-pop callback and both would otherwise fire.
+  bool _leftScreen = false;
+
+  /// Pops exactly once, regardless of which exit path (manual back or
+  /// auto-pop-on-done) reaches it first.
+  void _leaveOnce() {
+    if (_leftScreen) return;
+    _leftScreen = true;
+    Navigator.of(context).pop();
+  }
 
   /// Back control per D-02: end the timer and return to Setup immediately,
   /// with no confirmation dialog. This is not the real Phase 4 Parent
@@ -31,17 +43,16 @@ class _PlaceholderRunningScreenState extends State<PlaceholderRunningScreen> {
   /// screen is usable/testable before Phase 4 lands.
   void _handleBack() {
     context.read<TimerController>().endTimer();
-    Navigator.of(context).pop();
+    _leaveOnce();
   }
 
   /// Auto-returns to Setup once the controller reaches [TimerPhase.done]
   /// (D-04), scheduled via a post-frame callback since navigating away is
   /// not safe to do synchronously from inside `build`.
   void _maybeAutoPopWhenDone(TimerPhase phase) {
-    if (phase != TimerPhase.done || _popped) return;
-    _popped = true;
+    if (phase != TimerPhase.done || _leftScreen) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) _leaveOnce();
     });
   }
 
