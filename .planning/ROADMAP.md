@@ -64,13 +64,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. On next launch, the previously used duration and theme are pre-selected.
   5. The screen visually matches Layout A (colors, radii, spacing, typography) from the design spec.
 
-**Plans**: 5 plans
+**Plans**: 1/5 plans executed
 **UI hint**: yes
 
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Walking slice: duration presets + Start + placeholder running screen (SETUP-01, SETUP-04)
+- [x] 02-01-PLAN.md — Walking slice: duration presets + Start + placeholder running screen (SETUP-01, SETUP-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -144,7 +144,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
-| 2. Setup Screen | 0/5 | Not started | - |
+| 2. Setup Screen | 1/5 | In Progress|  |
 | 3. Scene Themes | 0/TBD | Not started | - |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |

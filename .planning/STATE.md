@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2
-current_phase_name: Setup Screen
+current_phase: 02
+current_phase_name: setup-screen
 status: executing
 stopped_at: Phase 02 planned (5 plans, verification passed)
-last_updated: "2026-07-07T06:56:07.334Z"
+last_updated: "2026-07-07T07:08:22.012Z"
 last_activity: 2026-07-07
-last_activity_desc: Phase 2 planning complete — 5 plans ready
+last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 7
+  completed_plans: 3
   percent: 20
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-06)
 
 **Core value:** A child with no concept of clock time can look at the screen from across a room and understand, without any numbers or words, roughly how much longer they have to wait.
-**Current focus:** Phase 1 — Timer State-Machine Foundation
+**Current focus:** Phase 02 — setup-screen
 
 ## Current Position
 
-Phase: 2 — Setup Screen
-Plan: 5 plans ready (waves 1-5)
+Phase: 02 (setup-screen) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-07-07 — Phase 2 planning complete
+Last activity: 2026-07-07 — Phase 02 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-timer-state-machine-foundation P02 | 32min | 2 tasks | 8 files |
+| Phase 02 P01 | 18 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,7 @@ Recent decisions affecting current work:
 - [Scenes]: Build all 4 themes in one phase, not disc-first — they share the timer state machine and color-zone logic.
 - [Phase 1]: Freeze elapsed at pausedAt while paused (not Stopwatch), consistent with Plan 01's injected-clock model
 - [Phase 1]: ScreenWake enable/disable calls are fire-and-forget inside synchronous transition methods, paired strictly to running-phase entry/exit
+- [Phase 02]: SETUP-01/04: Start label rendered as two Text widgets in a Row instead of RichText/TextSpan for simpler widget-test assertions
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-07T06:56:07.334Z
+Last session: 2026-07-07T07:07:57.700Z
 Stopped at: Phase 02 planned (5 plans, verification passed)
 Resume file: .planning/phases/02-setup-screen/02-01-PLAN.md
