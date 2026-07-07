@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Timer State-Machine Foundation** - Drift-free, lifecycle-safe countdown engine every screen depends on (completed 2026-07-07)
 - [x] **Phase 2: Setup Screen** - Parent configures duration + scene and launches the timer; last-used settings remembered (all plans executed; awaiting human UAT sign-off) (completed 2026-07-07)
-- [ ] **Phase 3: Scene Themes** - Four full-screen wordless scenes driven by a shared progress value
+- [x] **Phase 3: Scene Themes** - Four full-screen wordless scenes driven by a shared progress value (completed 2026-07-07)
 - [ ] **Phase 4: Parent Controls & Completion** - Hidden long-press controls, mute, calm chime, and finished state
 - [ ] **Phase 5: Play Store Readiness** - Real app identity, signing, and store listing assets for publication
 
@@ -102,7 +102,7 @@ Plans:
   4. All scenes are driven solely by the shared 0..1 progress value via a common scene-renderer contract, and nothing on the running screen is tappable by the child.
   5. Scenes animate smoothly without visible jank on a mid/low-end Android device.
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans complete
 **UI hint**: yes
 
 Plans:
@@ -116,7 +116,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion — shared scene_registry.dart)*
 
-- [ ] 03-03-PLAN.md — Walking Home + Car on a Road (shared arrival mechanic); finalize exhaustive registry (SCENE-03, SCENE-04)
+- [x] 03-03-PLAN.md — Walking Home + Car on a Road (shared arrival mechanic); finalize exhaustive registry (SCENE-03, SCENE-04)
 
 ### Phase 4: Parent Controls & Completion
 
@@ -158,6 +158,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
-| 3. Scene Themes | 2/3 | In Progress|  |
+| 3. Scene Themes | 3/3 | Complete   | 2026-07-07 |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
