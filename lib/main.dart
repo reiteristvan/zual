@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'screens/setup_screen.dart';
+import 'theme/app_tokens.dart';
 import 'timer/timer_controller.dart';
 import 'timer/timer_lifecycle_binder.dart';
 import 'timer/wakelock_screen_wake.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final timerController = TimerController(screenWake: const WakelockScreenWake());
@@ -15,9 +17,14 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.timerController});
+  const MyApp({super.key, required this.timerController, this.initialDurationMin = 5});
 
   final TimerController timerController;
+
+  /// The duration (in minutes) [SetupScreen] pre-selects on first mount.
+  /// Plan 04 will replace this literal default with a value preloaded from
+  /// SharedPreferences before `runApp`.
+  final int initialDurationMin;
 
   @override
   Widget build(BuildContext context) {
@@ -26,29 +33,10 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Zual',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: AppTokens.accent),
+          scaffoldBackgroundColor: AppTokens.bg,
         ),
-        home: const MyHomePage(),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Zual'),
-      ),
-      body: const Center(
-        child: Text(
-          'Hello, World!',
-          style: TextStyle(fontSize: 24),
-        ),
+        home: SetupScreen(initialDurationMin: initialDurationMin),
       ),
     );
   }
