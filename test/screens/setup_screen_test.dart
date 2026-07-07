@@ -426,7 +426,10 @@ void main() {
         await tester.pump();
 
         await tester.tap(find.byKey(const ValueKey('start-button')));
-        await tester.pumpAndSettle();
+        // Walking Home now hosts a real ticking scene (Plan 03-03) --
+        // `pumpAndSettle()` hangs against its continuous per-scene Ticker
+        // while the timer runs, same as the disc-scene case below.
+        await _pumpPastTransition(tester);
 
         final restored = await SetupPreferences.load();
         expect(restored.durationMin, 10);
