@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'car/car_scene.dart';
 import 'disc/disc_scene.dart';
 import 'scene_theme.dart';
 import 'sunrise/sunrise_scene.dart';
@@ -10,11 +11,10 @@ import 'walk/walk_scene.dart';
 /// [RunningScreen] depends only on this function, never on a concrete scene
 /// type, so `RunningScreen` never needs to change as more scenes land.
 ///
-/// Plan 03-01 wired the real [DiscScene] for [SceneTheme.disc]; Plan 03-02
-/// wires the real [SunriseScene] for [SceneTheme.sunrise]; Plan 03-03 wires
-/// the real [WalkScene] for [SceneTheme.walk]. Car still maps to
-/// [_PendingScene], an interim, calm, non-crashing placeholder replaced by
-/// the real scene later in Plan 03-03 -- not a shipped scope reduction.
+/// Exhaustive over every [SceneTheme] value as of Plan 03-03: disc->
+/// [DiscScene] (Plan 03-01), sunrise->[SunriseScene] (Plan 03-02), walk->
+/// [WalkScene] and car->[CarScene] (Plan 03-03). There is no interim
+/// fallback branch left -- all four themes render their real scene.
 Widget sceneFor(SceneTheme theme) {
   switch (theme) {
     case SceneTheme.disc:
@@ -24,19 +24,6 @@ Widget sceneFor(SceneTheme theme) {
     case SceneTheme.walk:
       return const WalkScene();
     case SceneTheme.car:
-      // TODO(03-03): replace with the real CarScene.
-      return const _PendingScene(Color(0xFFF6D9A8));
+      return const CarScene();
   }
-}
-
-/// Interim fallback for themes not yet implemented in this plan: a calm,
-/// full-bleed flat background at that theme's locked base color
-/// (`03-UI-SPEC.md` §§D/E/F), with no text, gestures, or motion.
-class _PendingScene extends StatelessWidget {
-  const _PendingScene(this.color);
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(color: color);
 }
