@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:zual/scenes/scene_theme.dart';
-import 'package:zual/screens/placeholder_running_screen.dart';
+import 'package:zual/screens/running_screen.dart';
 import 'package:zual/screens/setup_screen.dart';
 import 'package:zual/settings/setup_preferences.dart';
 import 'package:zual/timer/timer_controller.dart';
@@ -28,6 +28,16 @@ Widget _harness(
       ),
     ),
   );
+}
+
+/// Pumps just enough frames for a route push/pop transition to finish,
+/// instead of `pumpAndSettle()` -- which hangs once Start navigates to
+/// [RunningScreen] hosting the (default) Shrinking Disc scene, whose
+/// per-scene `Ticker` schedules frames continuously while the timer is
+/// running (`03-RESEARCH.md` Pitfall 4).
+Future<void> _pumpPastTransition(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
 }
 
 void main() {
@@ -56,7 +66,7 @@ void main() {
 
     testWidgets(
       'tapping Start after selecting a preset calls TimerController.start and '
-      'navigates to the placeholder running screen (SETUP-04)',
+      'navigates to RunningScreen (SETUP-04)',
       (WidgetTester tester) async {
         final controller = TimerController(clock: () => DateTime(2026, 1, 1));
         await tester.pumpWidget(_harness(controller));
@@ -65,10 +75,10 @@ void main() {
         await tester.pump();
 
         await tester.tap(find.byKey(const ValueKey('start-button')));
-        await tester.pumpAndSettle();
+        await _pumpPastTransition(tester);
 
         expect(controller.phase, TimerPhase.running);
-        expect(find.byType(PlaceholderRunningScreen), findsOneWidget);
+        expect(find.byType(RunningScreen), findsOneWidget);
 
         controller.dispose();
       },
@@ -180,7 +190,7 @@ void main() {
         expect(find.text('· 4 min'), findsOneWidget);
 
         await tester.tap(find.byKey(const ValueKey('start-button')));
-        await tester.pumpAndSettle();
+        await _pumpPastTransition(tester);
         expect(controller.phase, TimerPhase.running);
 
         // Prove the *custom* value (4), not the stale preset default (5),
@@ -329,7 +339,7 @@ void main() {
     );
   });
 
-  group('SetupScreen -> PlaceholderRunningScreen', () {
+  group('SetupScreen -> RunningScreen', () {
     testWidgets(
       'the back control ends the timer and returns to Setup with phase set to setup',
       (WidgetTester tester) async {
@@ -338,7 +348,7 @@ void main() {
         await tester.pumpWidget(_harness(controller));
 
         await tester.tap(find.byKey(const ValueKey('start-button')));
-        await tester.pumpAndSettle();
+        await _pumpPastTransition(tester);
         expect(controller.phase, TimerPhase.running);
 
         await tester.tap(find.bySemanticsLabel('End timer and return to setup'));
@@ -346,7 +356,7 @@ void main() {
 
         expect(controller.phase, TimerPhase.setup);
         expect(find.byType(SetupScreen), findsOneWidget);
-        expect(find.byType(PlaceholderRunningScreen), findsNothing);
+        expect(find.byType(RunningScreen), findsNothing);
 
         semantics.dispose();
         controller.dispose();
@@ -361,8 +371,8 @@ void main() {
       await tester.pumpWidget(_harness(controller));
 
       await tester.tap(find.byKey(const ValueKey('start-button')));
-      await tester.pumpAndSettle();
-      expect(find.byType(PlaceholderRunningScreen), findsOneWidget);
+      await _pumpPastTransition(tester);
+      expect(find.byType(RunningScreen), findsOneWidget);
 
       now = now.add(const Duration(minutes: 5, seconds: 1)); // default 5-min preset
       controller.syncToWallClock();
@@ -370,7 +380,7 @@ void main() {
 
       expect(controller.phase, TimerPhase.done);
       expect(find.byType(SetupScreen), findsOneWidget);
-      expect(find.byType(PlaceholderRunningScreen), findsNothing);
+      expect(find.byType(RunningScreen), findsNothing);
 
       controller.dispose();
     });
@@ -447,7 +457,7 @@ void main() {
         await tester.pump();
 
         await tester.tap(find.byKey(const ValueKey('start-button')));
-        await tester.pumpAndSettle();
+        await _pumpPastTransition(tester);
 
         final restored = await SetupPreferences.load();
         expect(restored.durationMin, 10); // untouched -- custom never persisted
