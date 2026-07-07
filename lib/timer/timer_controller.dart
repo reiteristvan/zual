@@ -48,10 +48,16 @@ class TimerController extends ChangeNotifier {
   /// the freshly computed raw elapsed fraction and a stored high-water mark,
   /// so a backward device-clock movement cannot rewind a running countdown.
   double get progress {
-    if (_total.inMilliseconds == 0) return 0.0;
-    final rawFraction = _elapsed.inMilliseconds / _total.inMilliseconds;
-    final clamped = rawFraction.clamp(0.0, 1.0);
+    final clamped = _rawFraction;
     return clamped > _progressHighWaterMark ? clamped : _progressHighWaterMark;
+  }
+
+  /// The raw elapsed fraction (0..1), clamped, with no high-water-mark
+  /// applied. Shared by [progress] and [syncToWallClock] so the formula is
+  /// defined in exactly one place.
+  double get _rawFraction {
+    if (_total.inMilliseconds == 0) return 0.0;
+    return (_elapsed.inMilliseconds / _total.inMilliseconds).clamp(0.0, 1.0);
   }
 
   /// Elapsed time since [_startTime], minus paused time, floored at zero so a
@@ -142,12 +148,9 @@ class TimerController extends ChangeNotifier {
   /// periodic ticker or by a foreground-return lifecycle hook
   /// (`TimerLifecycleBinder`), which realizes done-while-backgrounded.
   void syncToWallClock() {
-    if (_total.inMilliseconds != 0) {
-      final rawFraction = (_elapsed.inMilliseconds / _total.inMilliseconds)
-          .clamp(0.0, 1.0);
-      if (rawFraction > _progressHighWaterMark) {
-        _progressHighWaterMark = rawFraction;
-      }
+    final rawFraction = _rawFraction;
+    if (rawFraction > _progressHighWaterMark) {
+      _progressHighWaterMark = rawFraction;
     }
 
     if (_phase == TimerPhase.running && _elapsed >= _total) {
