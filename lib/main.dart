@@ -15,7 +15,18 @@ Future<void> main() async {
   // Read persisted prefs once, before runApp, so the very first frame
   // already shows the restored preset/theme (PERSIST-01, Pitfall 3) — a
   // FutureBuilder inside SetupScreen would still show a default frame first.
-  final prefs = await SetupPreferences.load();
+  //
+  // Defense-in-depth against T-02-02: SetupPreferences.load() already
+  // validates/falls back on out-of-range, unknown-enum, and wrong-typed
+  // stored values, but launch must never be able to fail on *any*
+  // unexpected preference-loading error, so this also falls back to the
+  // built-in defaults rather than let main() throw before runApp() runs.
+  SetupPreferences prefs;
+  try {
+    prefs = await SetupPreferences.load();
+  } catch (_) {
+    prefs = const SetupPreferences(durationMin: 5, theme: SceneTheme.disc);
+  }
 
   final timerController = TimerController(screenWake: const WakelockScreenWake());
   TimerLifecycleBinder(timerController).attach();

@@ -44,18 +44,36 @@ class SetupPreferences {
   ///   the D-09 default of 5.
   /// - `theme` is resolved via [SceneTheme.values.firstWhere]; an unknown or
   ///   missing stored string falls back to [SceneTheme.disc] (D-09).
+  ///
+  /// `getInt`/`getString` perform an unchecked cast on the stored value, so
+  /// a wrong-typed entry (a rooted-device edit, or a future app version
+  /// that stored a different type under the same key) throws a [TypeError]
+  /// rather than returning `null`. Both reads are wrapped so a type
+  /// mismatch also falls back to the D-09 default instead of crashing
+  /// launch (T-02-02) -- the whole point of validating on every read is
+  /// that a tampered/corrupted store must never be trusted, including its
+  /// type.
   static Future<SetupPreferences> load() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final storedDuration = prefs.getInt(_durationMinKey);
-    final durationMin =
-        storedDuration?.clamp(_minDurationMin, _maxDurationMin) ?? 5;
+    var durationMin = 5;
+    try {
+      final storedDuration = prefs.getInt(_durationMinKey);
+      durationMin = storedDuration?.clamp(_minDurationMin, _maxDurationMin) ?? 5;
+    } catch (_) {
+      durationMin = 5;
+    }
 
-    final storedTheme = prefs.getString(_themeKey);
-    final theme = SceneTheme.values.firstWhere(
-      (t) => t.name == storedTheme,
-      orElse: () => SceneTheme.disc,
-    );
+    var theme = SceneTheme.disc;
+    try {
+      final storedTheme = prefs.getString(_themeKey);
+      theme = SceneTheme.values.firstWhere(
+        (t) => t.name == storedTheme,
+        orElse: () => SceneTheme.disc,
+      );
+    } catch (_) {
+      theme = SceneTheme.disc;
+    }
 
     return SetupPreferences(durationMin: durationMin, theme: theme);
   }
