@@ -102,13 +102,13 @@ Plans:
   4. All scenes are driven solely by the shared 0..1 progress value via a common scene-renderer contract, and nothing on the running screen is tappable by the child.
   5. Scenes animate smoothly without visible jank on a mid/low-end Android device.
 
-**Plans**: 3 plans
+**Plans**: 1/3 plans executed
 **UI hint**: yes
 
 Plans:
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Scene architecture spine (SceneRenderer + per-scene ticker, registry, RunningScreen) + Shrinking Disc end-to-end (SCENE-01, SCENE-05)
+- [x] 03-01-PLAN.md — Scene architecture spine (SceneRenderer + per-scene ticker, registry, RunningScreen) + Shrinking Disc end-to-end (SCENE-01, SCENE-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -158,6 +158,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
-| 3. Scene Themes | 0/TBD | Not started | - |
+| 3. Scene Themes | 1/3 | In Progress|  |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
