@@ -26,10 +26,10 @@ without any numbers or words, roughly how much longer they have to wait.
 
 - ✓ Flutter project scaffolded with web + Android platform support — existing scaffold (pre-Zual)
 - ✓ Shared countdown/progress state machine (`setup → running → paused → done`), driven by wall-clock time, surviving pause/resume and backgrounding, with screen-wake tied to the running phase — Phase 1
+- ✓ Setup screen (parent-facing): duration via presets (1/5/10/15/30 min) + custom stepper (1–120 min), theme picker (4 scene cards), Start button — Layout A per design spec — Phase 2
 
 ### Active
 
-- [ ] Setup screen (parent-facing): duration via presets (1/5/10/15/30 min) + custom stepper (1–120 min), theme picker (4 scene cards), Start button — Layout A per design spec
 - [ ] Running timer screen (child-facing): full-screen portrait, zero text/numbers, nothing tappable by the child
 - [ ] Shrinking Disc theme: disc scales down as time passes, green→yellow→red color zones
 - [ ] Night to Sunrise theme: sky interpolates night→day, stars/moon fade, sun rises, hill warms
@@ -74,6 +74,10 @@ without any numbers or words, roughly how much longer they have to wait.
 | Android only for v1 | Simplifies initial scope; existing scaffold supports web too but that's deferred | — Pending |
 | Build all 4 themes in the same phase rather than disc-first | Themes share the same underlying timer state machine and color-zone logic; splitting adds phase overhead without much isolation benefit | — Pending |
 | Publish to Play Store (not just personal use) | User's stated intent | — Pending |
+| SceneGrid owns SceneTheme -> label/painter maps; SceneCard depends only on the ScenePreviewPainter abstraction | Keeps SceneCard decoupled from any concrete painter type so new scene themes plug in without touching card logic (D-06) | ✓ Good — Phase 2 |
+| SetupPreferences clamps durationMin to 1..120 and resolves theme via firstWhere(orElse) on load | Persisted SharedPreferences values are untrusted (rooted device / future app version); never trust stored values to be in-range or a valid enum name | ✓ Good — Phase 2 |
+| persistIfPreset only ever writes a preset duration, never a custom one | A Custom last-use should always restore to the 5-min default preset on next launch, not a persisted custom number (D-10) | ✓ Good — Phase 2 |
+| #E0805F color usage accepted as verification override on Setup screen | Verified against design spec during Phase 2 verification; documented deviation, not a defect | ✓ Accepted — Phase 2 |
 
 ## Evolution
 
@@ -93,4 +97,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-07 after Phase 1: Timer State-Machine Foundation*
+*Last updated: 2026-07-07 after Phase 2: Setup Screen*

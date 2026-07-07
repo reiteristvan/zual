@@ -20,7 +20,7 @@ a real, signed, Play-Store-ready Android build.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Timer State-Machine Foundation** - Drift-free, lifecycle-safe countdown engine every screen depends on (completed 2026-07-07)
-- [ ] **Phase 2: Setup Screen** - Parent configures duration + scene and launches the timer; last-used settings remembered (all plans executed; awaiting human UAT sign-off)
+- [x] **Phase 2: Setup Screen** - Parent configures duration + scene and launches the timer; last-used settings remembered (all plans executed; awaiting human UAT sign-off) (completed 2026-07-07)
 - [ ] **Phase 3: Scene Themes** - Four full-screen wordless scenes driven by a shared progress value
 - [ ] **Phase 4: Parent Controls & Completion** - Hidden long-press controls, mute, calm chime, and finished state
 - [ ] **Phase 5: Play Store Readiness** - Real app identity, signing, and store listing assets for publication
@@ -144,7 +144,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
-| 2. Setup Screen | 5/5 | Awaiting UAT | - |
+| 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
 | 3. Scene Themes | 0/TBD | Not started | - |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
