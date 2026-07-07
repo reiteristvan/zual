@@ -155,12 +155,13 @@ class _SetupScreenState extends State<SetupScreen> {
     );
   }
 
-  /// Fixed header: wordmark + tagline.
+  /// Fixed header: wordmark + tagline, centered per UI-SPEC (`text-align:
+  /// center` in the Layout A reference markup).
   Widget _buildHeader() {
     return const Padding(
-      padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+      padding: EdgeInsets.fromLTRB(24, 52, 24, 8),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text('Zual', style: AppTokens.wordmark),
           SizedBox(height: 4),
@@ -199,58 +200,50 @@ class _SetupScreenState extends State<SetupScreen> {
   /// exactly one of the six cells at a time.
   Widget _buildPresetCard(int minutes) {
     final selected = !_showCustom && minutes == _durationMin;
-    return GestureDetector(
-      onTap: () => _selectPreset(minutes),
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: AppTokens.cardSurface,
-              borderRadius: BorderRadius.circular(AppTokens.buttonRadius),
-              boxShadow: AppTokens.cardShadow,
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('$minutes', style: AppTokens.presetNumber),
-                Text('min', style: AppTokens.presetUnit),
-              ],
-            ),
+    return Stack(
+      children: [
+        _PressableSurface(
+          onTap: () => _selectPreset(minutes),
+          color: AppTokens.cardSurface,
+          pressedColor: AppTokens.pressed,
+          borderRadius: AppTokens.buttonRadius,
+          boxShadow: AppTokens.cardShadow,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('$minutes', style: AppTokens.presetNumber),
+              Text('min', style: AppTokens.presetUnit),
+            ],
           ),
-          if (selected) _buildSelectionRing(ValueKey('preset-ring-$minutes')),
-        ],
-      ),
+        ),
+        if (selected) _buildSelectionRing(ValueKey('preset-ring-$minutes')),
+      ],
     );
   }
 
   /// The sixth grid cell: "Custom" / "set your own". Selecting it reveals
   /// the stepper row and moves the selection ring here (SETUP-02).
   Widget _buildCustomCard() {
-    return GestureDetector(
-      onTap: _selectCustom,
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: AppTokens.cardSurface,
-              borderRadius: BorderRadius.circular(AppTokens.buttonRadius),
-              boxShadow: AppTokens.cardShadow,
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Custom', style: AppTokens.customLabel),
-                Text('set your own', style: AppTokens.customSublabel),
-              ],
-            ),
+    return Stack(
+      children: [
+        _PressableSurface(
+          onTap: _selectCustom,
+          color: AppTokens.cardSurface,
+          pressedColor: AppTokens.pressed,
+          borderRadius: AppTokens.buttonRadius,
+          boxShadow: AppTokens.cardShadow,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Custom', style: AppTokens.customLabel),
+              Text('set your own', style: AppTokens.customSublabel),
+            ],
           ),
-          if (_showCustom) _buildSelectionRing(const ValueKey('custom-ring')),
-        ],
-      ),
+        ),
+        if (_showCustom) _buildSelectionRing(const ValueKey('custom-ring')),
+      ],
     );
   }
 
@@ -347,7 +340,10 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   /// Fixed footer: the Start button, showing the currently selected
-  /// duration as two text runs ("Start" + "· {N} min") per UI-SPEC.
+  /// duration as two text runs ("Start" + "· {N} min") per UI-SPEC. Uses
+  /// [_PressableSurface] rather than `ElevatedButton` so the pressed fill
+  /// matches the UI-SPEC's exact `#6E9A68` (Android has no hover — the
+  /// design's `hover` state is treated as the pressed state).
   Widget _buildFooter() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 14, 22, 26),
@@ -355,17 +351,13 @@ class _SetupScreenState extends State<SetupScreen> {
         decoration: const BoxDecoration(boxShadow: AppTokens.startShadow),
         child: SizedBox(
           width: double.infinity,
-          child: ElevatedButton(
+          child: _PressableSurface(
             key: const ValueKey('start-button'),
-            onPressed: _handleStart,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTokens.accent,
-              padding: const EdgeInsets.all(20),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTokens.startRadius),
-              ),
-            ),
+            onTap: _handleStart,
+            color: AppTokens.accent,
+            pressedColor: AppTokens.accentPressed,
+            borderRadius: AppTokens.startRadius,
+            padding: const EdgeInsets.all(20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -376,6 +368,65 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// A tappable surface that swaps its fill to [pressedColor] while held, per
+/// the UI-SPEC's pressed/touch-feedback contract (`#FFF7E9` for
+/// preset/Custom/scene cards, `#6E9A68` for Start — Android has no hover, so
+/// the design's `hover` state is treated as the pressed state here). Shared
+/// by the duration/Custom cards and the Start button so pressed-state
+/// tracking lives in exactly one place rather than being duplicated per
+/// call site.
+class _PressableSurface extends StatefulWidget {
+  const _PressableSurface({
+    super.key,
+    required this.onTap,
+    required this.color,
+    required this.pressedColor,
+    required this.borderRadius,
+    required this.child,
+    this.padding = EdgeInsets.zero,
+    this.boxShadow,
+  });
+
+  final VoidCallback onTap;
+  final Color color;
+  final Color pressedColor;
+  final double borderRadius;
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final List<BoxShadow>? boxShadow;
+
+  @override
+  State<_PressableSurface> createState() => _PressableSurfaceState();
+}
+
+class _PressableSurfaceState extends State<_PressableSurface> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed != value) setState(() => _pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => _setPressed(true),
+      onTapCancel: () => _setPressed(false),
+      onTapUp: (_) => _setPressed(false),
+      child: Container(
+        padding: widget.padding,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: _pressed ? widget.pressedColor : widget.color,
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          boxShadow: widget.boxShadow,
+        ),
+        child: widget.child,
       ),
     );
   }

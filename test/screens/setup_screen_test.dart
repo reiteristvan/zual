@@ -146,6 +146,8 @@ void main() {
       expect(find.byKey(const ValueKey('custom-ring')), findsNothing);
       expect(find.byKey(const ValueKey('stepper-minus')), findsNothing);
 
+      await tester.ensureVisible(find.text('Custom'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Custom'));
       await tester.pump();
 
@@ -165,6 +167,8 @@ void main() {
         final controller = TimerController(clock: () => now);
         await tester.pumpWidget(_harness(controller));
 
+        await tester.ensureVisible(find.text('Custom'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Custom'));
         await tester.pump();
 
@@ -197,6 +201,8 @@ void main() {
         final controller = TimerController(clock: () => DateTime(2026, 1, 1));
         await tester.pumpWidget(_harness(controller));
 
+        await tester.ensureVisible(find.text('Custom'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Custom'));
         await tester.pump();
 
@@ -236,6 +242,8 @@ void main() {
         final controller = TimerController(clock: () => DateTime(2026, 1, 1));
         await tester.pumpWidget(_harness(controller));
 
+        await tester.ensureVisible(find.text('Custom'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Custom'));
         await tester.pump();
 
@@ -269,10 +277,14 @@ void main() {
       final controller = TimerController(clock: () => DateTime(2026, 1, 1));
       await tester.pumpWidget(_harness(controller));
 
+      await tester.ensureVisible(find.text('Custom'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Custom'));
       await tester.pump();
       expect(find.byKey(const ValueKey('stepper-minus')), findsOneWidget);
 
+      await tester.ensureVisible(find.text('10'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('10'));
       await tester.pump();
 
@@ -289,6 +301,8 @@ void main() {
         final controller = TimerController(clock: () => DateTime(2026, 1, 1));
         await tester.pumpWidget(_harness(controller));
 
+        await tester.ensureVisible(find.text('Custom'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Custom'));
         await tester.pump();
         await tester.ensureVisible(find.byKey(const ValueKey('stepper-plus')));
@@ -423,6 +437,8 @@ void main() {
         final controller = TimerController(clock: () => DateTime(2026, 1, 1));
         await tester.pumpWidget(_harness(controller));
 
+        await tester.ensureVisible(find.text('Custom'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Custom'));
         await tester.pump();
         await tester.ensureVisible(find.byKey(const ValueKey('stepper-plus')));

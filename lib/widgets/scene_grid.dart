@@ -11,7 +11,13 @@ import '../theme/app_tokens.dart';
 /// Depends only on the [ScenePreviewPainter] abstraction (D-06) — never on a
 /// concrete painter type (e.g. `DiscPreviewPainter`) by name, so Phase 3 can
 /// swap in the real scene-at-progress-0 renderer without touching this file.
-class SceneCard extends StatelessWidget {
+///
+/// Stateful (not stateless) so it can track its own pressed/touch-feedback
+/// state and swap its fill to `#FFF7E9` while held, per the UI-SPEC's
+/// pressed-state contract (Android has no hover — the design's `hover`
+/// state is treated as the pressed state here). The public constructor API
+/// is unchanged from the prior stateless version.
+class SceneCard extends StatefulWidget {
   const SceneCard({
     super.key,
     required this.preview,
@@ -32,14 +38,28 @@ class SceneCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<SceneCard> createState() => _SceneCardState();
+}
+
+class _SceneCardState extends State<SceneCard> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed != value) setState(() => _pressed = value);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
+      onTapDown: (_) => _setPressed(true),
+      onTapCancel: () => _setPressed(false),
+      onTapUp: (_) => _setPressed(false),
       child: Stack(
         children: [
           Container(
             decoration: BoxDecoration(
-              color: AppTokens.cardSurface,
+              color: _pressed ? AppTokens.pressed : AppTokens.cardSurface,
               borderRadius: BorderRadius.circular(AppTokens.cardRadius),
               boxShadow: AppTokens.cardShadow,
             ),
@@ -55,15 +75,15 @@ class SceneCard extends StatelessWidget {
                   child: SizedBox(
                     height: 74,
                     width: double.infinity,
-                    child: CustomPaint(painter: preview),
+                    child: CustomPaint(painter: widget.preview),
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(label, style: AppTokens.sceneCardLabel),
+                Text(widget.label, style: AppTokens.sceneCardLabel),
               ],
             ),
           ),
-          if (selected) _buildSelectionRing(),
+          if (widget.selected) _buildSelectionRing(),
         ],
       ),
     );
@@ -73,7 +93,7 @@ class SceneCard extends StatelessWidget {
     return Positioned.fill(
       child: IgnorePointer(
         child: Container(
-          key: ValueKey('scene-ring-${label.toLowerCase()}'),
+          key: ValueKey('scene-ring-${widget.label.toLowerCase()}'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTokens.cardRadius),
             border: Border.all(color: AppTokens.accent, width: 3),
