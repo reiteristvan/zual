@@ -197,3 +197,10 @@ None - no external service configuration required.
 ---
 *Phase: 02-setup-screen*
 *Completed: 2026-07-07*
+
+## Self-Check: PASSED
+
+All created/modified files verified present on disk (lib/widgets/hold_repeat_button.dart,
+test/widgets/hold_repeat_button_test.dart, lib/screens/setup_screen.dart,
+lib/theme/app_tokens.dart, test/screens/setup_screen_test.dart); all four task
+commit hashes (e468de6, e0cd30b, 7917ef0, 76e2fba) verified present in git log.
