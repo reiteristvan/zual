@@ -74,4 +74,51 @@ void main() {
       controller.dispose();
     });
   });
+
+  group('SetupScreen -> PlaceholderRunningScreen', () {
+    testWidgets(
+      'the back control ends the timer and returns to Setup with phase set to setup',
+      (WidgetTester tester) async {
+        final semantics = tester.ensureSemantics();
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        await tester.pumpWidget(_harness(controller));
+
+        await tester.tap(find.byKey(const ValueKey('start-button')));
+        await tester.pumpAndSettle();
+        expect(controller.phase, TimerPhase.running);
+
+        await tester.tap(find.bySemanticsLabel('End timer and return to setup'));
+        await tester.pumpAndSettle();
+
+        expect(controller.phase, TimerPhase.setup);
+        expect(find.byType(SetupScreen), findsOneWidget);
+        expect(find.byType(PlaceholderRunningScreen), findsNothing);
+
+        semantics.dispose();
+        controller.dispose();
+      },
+    );
+
+    testWidgets('reaching TimerPhase.done auto-returns to Setup', (
+      WidgetTester tester,
+    ) async {
+      var now = DateTime(2026, 1, 1, 12, 0, 0);
+      final controller = TimerController(clock: () => now);
+      await tester.pumpWidget(_harness(controller));
+
+      await tester.tap(find.byKey(const ValueKey('start-button')));
+      await tester.pumpAndSettle();
+      expect(find.byType(PlaceholderRunningScreen), findsOneWidget);
+
+      now = now.add(const Duration(minutes: 5, seconds: 1)); // default 5-min preset
+      controller.syncToWallClock();
+      await tester.pumpAndSettle();
+
+      expect(controller.phase, TimerPhase.done);
+      expect(find.byType(SetupScreen), findsOneWidget);
+      expect(find.byType(PlaceholderRunningScreen), findsNothing);
+
+      controller.dispose();
+    });
+  });
 }
