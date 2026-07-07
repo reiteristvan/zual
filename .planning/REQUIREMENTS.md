@@ -21,7 +21,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **SETUP-02**: Parent can pick a custom duration (1–120 min) via a stepper
 - [x] **SETUP-03**: Parent can pick one of 4 visual scene themes via thumbnail cards
 - [x] **SETUP-04**: Parent starts the timer with a single Start button showing the selected duration
-- [ ] **SETUP-05**: Setup screen matches Layout A from the design spec pixel-accurately (colors, radii, spacing, typography)
+- [x] **SETUP-05**: Setup screen matches Layout A from the design spec pixel-accurately (colors, radii, spacing, typography)
 
 ### Scene Themes
 
@@ -89,7 +89,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SETUP-02 | Phase 2 | Complete |
 | SETUP-03 | Phase 2 | Complete |
 | SETUP-04 | Phase 2 | Complete |
-| SETUP-05 | Phase 2 | Pending |
+| SETUP-05 | Phase 2 | Complete |
 | SCENE-01 | Phase 3 | Pending |
 | SCENE-02 | Phase 3 | Pending |
 | SCENE-03 | Phase 3 | Pending |
