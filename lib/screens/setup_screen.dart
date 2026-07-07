@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../scenes/scene_theme.dart';
+import '../settings/setup_preferences.dart';
 import '../theme/app_tokens.dart';
 import '../timer/timer_controller.dart';
 import '../widgets/hold_repeat_button.dart';
@@ -13,15 +16,27 @@ import 'placeholder_running_screen.dart';
 ///
 /// This plan implements the duration-preset + Start slice (SETUP-01,
 /// SETUP-04) and the scene picker (SETUP-03). The custom stepper (Plan 03)
-/// and persisted last-used defaults (Plan 04) extend this screen further
-/// without replacing it.
+/// extends this screen further, and PERSIST-01 (Plan 04) seeds
+/// [initialDurationMin]/[initialTheme] from persisted values and persists the
+/// selection again on Start.
 class SetupScreen extends StatefulWidget {
-  const SetupScreen({super.key, this.initialDurationMin = 5});
+  const SetupScreen({
+    super.key,
+    this.initialDurationMin = 5,
+    this.initialTheme = SceneTheme.disc,
+  });
 
   /// The duration (in minutes) pre-selected when this screen first mounts.
-  /// Defaults to 5 per D-09's first-launch default; Plan 04 passes in a
-  /// persisted value instead of this literal default.
+  /// Defaults to 5 per D-09's first-launch default; `main()` passes in a
+  /// value preloaded from [SetupPreferences.load] instead of this literal
+  /// default (PERSIST-01).
   final int initialDurationMin;
+
+  /// The scene theme pre-selected when this screen first mounts. Defaults to
+  /// [SceneTheme.disc] per D-09's first-launch default; `main()` passes in a
+  /// value preloaded from [SetupPreferences.load] instead of this literal
+  /// default (PERSIST-01).
+  final SceneTheme initialTheme;
 
   @override
   State<SetupScreen> createState() => _SetupScreenState();
@@ -33,10 +48,9 @@ class _SetupScreenState extends State<SetupScreen> {
 
   late int _durationMin;
 
-  /// The currently selected scene theme. Defaults to [SceneTheme.disc] per
-  /// D-09's first-launch default; Plan 04 will pass in a persisted value
-  /// instead of this literal default.
-  SceneTheme _theme = SceneTheme.disc;
+  /// The currently selected scene theme, seeded from [widget.initialTheme]
+  /// (PERSIST-01) in [initState].
+  late SceneTheme _theme;
 
   /// Whether the Custom stepper row is currently revealed. Selecting any
   /// numeric preset hides it; selecting "Custom" reveals it. The duration
@@ -54,6 +68,7 @@ class _SetupScreenState extends State<SetupScreen> {
   void initState() {
     super.initState();
     _durationMin = widget.initialDurationMin;
+    _theme = widget.initialTheme;
   }
 
   void _selectPreset(int minutes) {
@@ -88,8 +103,22 @@ class _SetupScreenState extends State<SetupScreen> {
   /// to the placeholder running screen. Start is a one-line call into
   /// [TimerController]'s existing public API — this screen never reaches
   /// into `lib/timer/` internals.
+  ///
+  /// Also persists the current selection via [SetupPreferences.persistIfPreset]
+  /// (PERSIST-01, D-10): theme is always written; duration is written only
+  /// when a preset (not Custom) is the live selection. This is
+  /// fire-and-forget — navigation must not wait on it, and a persistence
+  /// failure must fail silently (defaults are restored next launch instead)
+  /// rather than block or crash the Start flow.
   void _handleStart() {
     context.read<TimerController>().start(_selectedMinutes);
+    unawaited(
+      SetupPreferences.persistIfPreset(
+        showCustom: _showCustom,
+        durationMin: _durationMin,
+        theme: _theme,
+      ),
+    );
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const PlaceholderRunningScreen()),
     );
