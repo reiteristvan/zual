@@ -68,10 +68,24 @@ Decimal phases appear between their surrounding integers in numeric order.
 **UI hint**: yes
 
 Plans:
+**Wave 1**
+
 - [ ] 02-01-PLAN.md — Walking slice: duration presets + Start + placeholder running screen (SETUP-01, SETUP-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-02-PLAN.md — Scene selection: ScenePreviewPainter abstraction + 4 static previews + scene grid (SETUP-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-03-PLAN.md — Custom duration: accelerating hold-repeat stepper with clamped 1–120 range (SETUP-02)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 02-04-PLAN.md — Persistence: last-used preset + theme, validated on read (PERSIST-01)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 02-05-PLAN.md — Layout A fidelity: offline fonts + pixel-accurate tokens/copy (SETUP-05)
 
 ### Phase 3: Scene Themes
