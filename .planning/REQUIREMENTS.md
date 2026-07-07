@@ -25,11 +25,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Scene Themes
 
-- [ ] **SCENE-01**: Shrinking Disc theme renders full-screen; disc scales down as time passes with green→yellow→red color zones
+- [x] **SCENE-01**: Shrinking Disc theme renders full-screen; disc scales down as time passes with green→yellow→red color zones
 - [ ] **SCENE-02**: Night to Sunrise theme renders full-screen; sky interpolates night→day, stars/moon fade, sun rises, hill warms
 - [ ] **SCENE-03**: Walking Home theme renders full-screen; character walks a path toward a house, arriving at time-up
 - [ ] **SCENE-04**: Car on a Road theme renders full-screen; car drives a path toward a destination, arriving at time-up
-- [ ] **SCENE-05**: All 4 scenes read only a shared `progress` value (0..1) via a common scene-renderer contract; nothing is tappable by the child
+- [x] **SCENE-05**: All 4 scenes read only a shared `progress` value (0..1) via a common scene-renderer contract; nothing is tappable by the child
 
 ### Parent Controls & Completion
 
@@ -90,11 +90,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SETUP-03 | Phase 2 | Complete |
 | SETUP-04 | Phase 2 | Complete |
 | SETUP-05 | Phase 2 | Complete |
-| SCENE-01 | Phase 3 | Pending |
+| SCENE-01 | Phase 3 | Complete |
 | SCENE-02 | Phase 3 | Pending |
 | SCENE-03 | Phase 3 | Pending |
 | SCENE-04 | Phase 3 | Pending |
-| SCENE-05 | Phase 3 | Pending |
+| SCENE-05 | Phase 3 | Complete |
 | CTRL-01 | Phase 4 | Pending |
 | CTRL-02 | Phase 4 | Pending |
 | CTRL-03 | Phase 4 | Pending |
