@@ -9,11 +9,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Timer Foundation
 
-- [ ] **TIMER-01**: App maintains a shared timer state machine with phases `setup` / `running` / `paused` / `done`
+- [x] **TIMER-01**: App maintains a shared timer state machine with phases `setup` / `running` / `paused` / `done`
 - [ ] **TIMER-02**: Countdown progress is calculated from wall-clock elapsed time (not animation duration), so it doesn't drift over long runs
-- [ ] **TIMER-03**: Timer correctly pauses and resumes, excluding paused time from the elapsed calculation
-- [ ] **TIMER-04**: App handles backgrounding/foregrounding during a running timer without losing correct progress
-- [ ] **TIMER-05**: Screen stays awake (no sleep) while a timer is running
+- [x] **TIMER-03**: Timer correctly pauses and resumes, excluding paused time from the elapsed calculation
+- [x] **TIMER-04**: App handles backgrounding/foregrounding during a running timer without losing correct progress
+- [x] **TIMER-05**: Screen stays awake (no sleep) while a timer is running
 
 ### Setup Screen
 
@@ -80,11 +80,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TIMER-01 | Phase 1 | Pending |
+| TIMER-01 | Phase 1 | Complete |
 | TIMER-02 | Phase 1 | Pending |
-| TIMER-03 | Phase 1 | Pending |
-| TIMER-04 | Phase 1 | Pending |
-| TIMER-05 | Phase 1 | Pending |
+| TIMER-03 | Phase 1 | Complete |
+| TIMER-04 | Phase 1 | Complete |
+| TIMER-05 | Phase 1 | Complete |
 | SETUP-01 | Phase 2 | Pending |
 | SETUP-02 | Phase 2 | Pending |
 | SETUP-03 | Phase 2 | Pending |
@@ -104,6 +104,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PUBLISH-02 | Phase 5 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 22 total
 - Mapped to phases: 22 ✓
 - Unmapped: 0

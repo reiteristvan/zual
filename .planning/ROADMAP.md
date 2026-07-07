@@ -19,7 +19,7 @@ a real, signed, Play-Store-ready Android build.
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Timer State-Machine Foundation** - Drift-free, lifecycle-safe countdown engine every screen depends on
+- [x] **Phase 1: Timer State-Machine Foundation** - Drift-free, lifecycle-safe countdown engine every screen depends on (completed 2026-07-07)
 - [ ] **Phase 2: Setup Screen** - Parent configures duration + scene and launches the timer; last-used settings remembered
 - [ ] **Phase 3: Scene Themes** - Four full-screen wordless scenes driven by a shared progress value
 - [ ] **Phase 4: Parent Controls & Completion** - Hidden long-press controls, mute, calm chime, and finished state
@@ -41,14 +41,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The screen does not sleep while a timer is running, and normal sleep behavior returns once the timer ends.
   5. The engine moves through setup → running → (paused) → done and exposes a normalized 0..1 progress value.
 
-**Plans**: 1/2 plans executed
+**Plans**: 2/2 plans complete
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Wall-clock progress engine: TimerPhase enum + TimerController (start/progress/done) with deterministic tests (TIMER-01, TIMER-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Pause/resume, backgrounding reconciliation, screen-wake, and app-root wiring (TIMER-01, TIMER-03, TIMER-04, TIMER-05)
+- [x] 01-02-PLAN.md — Pause/resume, backgrounding reconciliation, screen-wake, and app-root wiring (TIMER-01, TIMER-03, TIMER-04, TIMER-05)
 
 ### Phase 2: Setup Screen
 
@@ -122,7 +122,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Timer State-Machine Foundation | 1/2 | In Progress|  |
+| 1. Timer State-Machine Foundation | 2/2 | Complete   | 2026-07-07 |
 | 2. Setup Screen | 0/TBD | Not started | - |
 | 3. Scene Themes | 0/TBD | Not started | - |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
