@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:zual/scenes/scene_theme.dart';
 import 'package:zual/screens/placeholder_running_screen.dart';
 import 'package:zual/screens/setup_screen.dart';
+import 'package:zual/settings/setup_preferences.dart';
 import 'package:zual/timer/timer_controller.dart';
 import 'package:zual/timer/timer_phase.dart';
 import 'package:zual/widgets/hold_repeat_button.dart';
@@ -11,11 +14,18 @@ import 'package:zual/widgets/hold_repeat_button.dart';
 /// Wraps [SetupScreen] with the [TimerController] provider it expects in
 /// production (mirrors the real `main.dart` wiring), using an injected-clock
 /// controller so this suite never depends on wall-clock time.
-Widget _harness(TimerController controller, {int initialDurationMin = 5}) {
+Widget _harness(
+  TimerController controller, {
+  int initialDurationMin = 5,
+  SceneTheme initialTheme = SceneTheme.disc,
+}) {
   return ChangeNotifierProvider<TimerController>.value(
     value: controller,
     child: MaterialApp(
-      home: SetupScreen(initialDurationMin: initialDurationMin),
+      home: SetupScreen(
+        initialDurationMin: initialDurationMin,
+        initialTheme: initialTheme,
+      ),
     ),
   );
 }
@@ -350,5 +360,85 @@ void main() {
 
       controller.dispose();
     });
+  });
+
+  group('SetupScreen persistence (PERSIST-01)', () {
+    testWidgets(
+      'seeds the scene selection from initialTheme (no default->restored flash)',
+      (WidgetTester tester) async {
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        await tester.pumpWidget(
+          _harness(controller, initialTheme: SceneTheme.walk),
+        );
+
+        await tester.ensureVisible(find.text('Walking home'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const ValueKey('scene-ring-walking home')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('scene-ring-shrinking disc')),
+          findsNothing,
+        );
+
+        controller.dispose();
+      },
+    );
+
+    testWidgets(
+      'Start persists theme and duration when a preset is selected (D-10)',
+      (WidgetTester tester) async {
+        SharedPreferences.setMockInitialValues({});
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        await tester.pumpWidget(_harness(controller));
+
+        await tester.tap(find.text('10'));
+        await tester.pump();
+        await tester.ensureVisible(find.text('Walking home'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Walking home'));
+        await tester.pump();
+
+        await tester.tap(find.byKey(const ValueKey('start-button')));
+        await tester.pumpAndSettle();
+
+        final restored = await SetupPreferences.load();
+        expect(restored.durationMin, 10);
+        expect(restored.theme, SceneTheme.walk);
+
+        controller.dispose();
+      },
+    );
+
+    testWidgets(
+      'Start persists theme but leaves durationMin untouched when Custom '
+      'is selected (D-10, Pitfall 4)',
+      (WidgetTester tester) async {
+        SharedPreferences.setMockInitialValues({
+          'durationMin': 10,
+          'theme': 'disc',
+        });
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        await tester.pumpWidget(_harness(controller));
+
+        await tester.tap(find.text('Custom'));
+        await tester.pump();
+        await tester.ensureVisible(find.byKey(const ValueKey('stepper-plus')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('stepper-plus')));
+        await tester.pump();
+
+        await tester.tap(find.byKey(const ValueKey('start-button')));
+        await tester.pumpAndSettle();
+
+        final restored = await SetupPreferences.load();
+        expect(restored.durationMin, 10); // untouched -- custom never persisted
+        expect(restored.theme, SceneTheme.disc);
+
+        controller.dispose();
+      },
+    );
   });
 }
