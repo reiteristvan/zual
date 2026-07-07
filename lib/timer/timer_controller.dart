@@ -164,6 +164,9 @@ class TimerController extends ChangeNotifier {
   @override
   void dispose() {
     _ticker?.cancel();
+    if (_phase == TimerPhase.running) {
+      _screenWake.disable();
+    }
     super.dispose();
   }
 }
