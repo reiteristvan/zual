@@ -112,3 +112,13 @@ None - no external service configuration required.
 ---
 *Phase: 03-scene-themes*
 *Completed: 2026-07-07*
+
+## Self-Check: PASSED
+
+All claimed files and commits verified present on disk / in git history:
+- `lib/scenes/car/car_painter.dart` - FOUND
+- `test/scenes/car/car_painter_test.dart` - FOUND
+- `.planning/phases/03-scene-themes/03-04-SUMMARY.md` - FOUND
+- Commit `2e370ee` (test) - FOUND
+- Commit `6fc7463` (feat) - FOUND
+- Commit `9546f78` (docs) - FOUND
