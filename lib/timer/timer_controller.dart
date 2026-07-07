@@ -95,6 +95,8 @@ class TimerController extends ChangeNotifier {
     if (_phase != TimerPhase.running) return;
     _pausedAt = _clock();
     _phase = TimerPhase.paused;
+    _ticker?.cancel();
+    _ticker = null;
     _screenWake.disable();
     notifyListeners();
   }
