@@ -64,8 +64,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. On next launch, the previously used duration and theme are pre-selected.
   5. The screen visually matches Layout A (colors, radii, spacing, typography) from the design spec.
 
-**Plans**: TBD
+**Plans**: 5 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 02-01-PLAN.md — Walking slice: duration presets + Start + placeholder running screen (SETUP-01, SETUP-04)
+- [ ] 02-02-PLAN.md — Scene selection: ScenePreviewPainter abstraction + 4 static previews + scene grid (SETUP-03)
+- [ ] 02-03-PLAN.md — Custom duration: accelerating hold-repeat stepper with clamped 1–120 range (SETUP-02)
+- [ ] 02-04-PLAN.md — Persistence: last-used preset + theme, validated on read (PERSIST-01)
+- [ ] 02-05-PLAN.md — Layout A fidelity: offline fonts + pixel-accurate tokens/copy (SETUP-05)
 
 ### Phase 3: Scene Themes
 
@@ -123,7 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
-| 2. Setup Screen | 0/TBD | Not started | - |
+| 2. Setup Screen | 0/5 | Not started | - |
 | 3. Scene Themes | 0/TBD | Not started | - |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
