@@ -5,14 +5,19 @@ import 'package:flutter/material.dart';
 ///
 /// Centralizing these as static consts (rather than scattering hex literals
 /// across widgets) keeps the Setup/placeholder-running screens pixel-accurate
-/// to the design spec and gives later plans (e.g. Plan 05's font swap) a
-/// single place to update.
+/// to the design spec and gives later plans a single place to update.
 ///
-/// Note: text styles below intentionally use the platform-default font
-/// family for now. Plan 05 bundles Baloo 2 (wordmark) and Quicksand
-/// (everything else) as local assets and adds `fontFamily` to each style at
-/// that point — do not add a `fontFamily` here until those assets exist.
+/// Fonts: Baloo 2 (700) for the wordmark only; Quicksand (400/500/600/700)
+/// for every other text style. Both are bundled as local `.ttf` assets under
+/// `assets/fonts/` and declared in `pubspec.yaml`'s `flutter: fonts:` section
+/// — no `google_fonts` runtime fetch, the app renders text fully offline.
 abstract class AppTokens {
+  /// Wordmark-only display font.
+  static const String fontBaloo = 'Baloo 2';
+
+  /// Every other text style's font.
+  static const String fontQuicksand = 'Quicksand';
+
   // Colors
   /// Dominant (60%) app/screen background — Setup and placeholder Running
   /// screen alike, for visual continuity.
@@ -76,8 +81,9 @@ abstract class AppTokens {
   ];
 
   // Text styles
-  /// Wordmark "Zual" — 36/700.
+  /// Wordmark "Zual" — 36/700, Baloo 2 (the only Baloo 2 usage in the app).
   static const TextStyle wordmark = TextStyle(
+    fontFamily: fontBaloo,
     fontSize: 36,
     fontWeight: FontWeight.w700,
     color: accent,
@@ -87,6 +93,7 @@ abstract class AppTokens {
 
   /// Tagline "a gentle timer for little ones" — 13/500, soft ink.
   static const TextStyle tagline = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 13,
     fontWeight: FontWeight.w500,
     color: inkSoft,
@@ -94,6 +101,7 @@ abstract class AppTokens {
 
   /// Section label ("How long?" / "Pick a scene") — 16/700, ink.
   static const TextStyle sectionLabel = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 16,
     fontWeight: FontWeight.w700,
     color: ink,
@@ -101,6 +109,7 @@ abstract class AppTokens {
 
   /// Preset button number (e.g. "5") — 30/700, ink.
   static const TextStyle presetNumber = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 30,
     fontWeight: FontWeight.w700,
     color: ink,
@@ -109,6 +118,7 @@ abstract class AppTokens {
 
   /// Preset button unit ("min") — 12/600, soft ink.
   static const TextStyle presetUnit = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 12,
     fontWeight: FontWeight.w600,
     color: inkSoft,
@@ -116,6 +126,7 @@ abstract class AppTokens {
 
   /// Scene card label (e.g. "Shrinking disc") — 13/700, ink, left-aligned.
   static const TextStyle sceneCardLabel = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 13,
     fontWeight: FontWeight.w700,
     color: ink,
@@ -123,6 +134,7 @@ abstract class AppTokens {
 
   /// Start label ("Start") — 21/700, start label color.
   static const TextStyle startLabelStyle = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 21,
     fontWeight: FontWeight.w700,
     color: startLabel,
@@ -130,6 +142,7 @@ abstract class AppTokens {
 
   /// Start suffix ("· {N} min") — 15/600, start label color @0.85 opacity.
   static const TextStyle startSuffix = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 15,
     fontWeight: FontWeight.w600,
     color: Color(0xD9FFFDF7), // startLabel @ ~0.85 opacity
@@ -137,6 +150,7 @@ abstract class AppTokens {
 
   /// "Custom" button label — 19/700, ink.
   static const TextStyle customLabel = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 19,
     fontWeight: FontWeight.w700,
     color: ink,
@@ -145,6 +159,7 @@ abstract class AppTokens {
 
   /// "Custom" button sublabel ("set your own") — 11/600, soft ink.
   static const TextStyle customSublabel = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 11,
     fontWeight: FontWeight.w600,
     color: inkSoft,
@@ -152,6 +167,7 @@ abstract class AppTokens {
 
   /// Custom stepper glyphs ("−"/"+") — 26/700, ink.
   static const TextStyle stepperGlyph = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 26,
     fontWeight: FontWeight.w700,
     color: ink,
@@ -160,6 +176,7 @@ abstract class AppTokens {
 
   /// Custom stepper value (e.g. "12") — 36/700, ink.
   static const TextStyle stepperValue = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 36,
     fontWeight: FontWeight.w700,
     color: ink,
@@ -171,6 +188,7 @@ abstract class AppTokens {
   /// UI-SPEC); kept as its own named token since the two roles are free to
   /// diverge later without one accidentally changing the other.
   static const TextStyle stepperUnit = TextStyle(
+    fontFamily: fontQuicksand,
     fontSize: 12,
     fontWeight: FontWeight.w600,
     color: inkSoft,
