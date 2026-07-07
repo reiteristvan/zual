@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'disc/disc_scene.dart';
 import 'scene_theme.dart';
 import 'sunrise/sunrise_scene.dart';
+import 'walk/walk_scene.dart';
 
 /// The one place allowed to name concrete scene widgets by type -- mirrors
 /// [lib/widgets/scene_grid.dart]'s `SceneGrid._painters` precedent (D-06).
@@ -10,10 +11,10 @@ import 'sunrise/sunrise_scene.dart';
 /// type, so `RunningScreen` never needs to change as more scenes land.
 ///
 /// Plan 03-01 wired the real [DiscScene] for [SceneTheme.disc]; Plan 03-02
-/// wires the real [SunriseScene] for [SceneTheme.sunrise]. Walk/Car still
-/// map to [_PendingScene], an interim, calm, non-crashing placeholder
-/// replaced by the real scenes in Plan 03-03 -- not a shipped scope
-/// reduction.
+/// wires the real [SunriseScene] for [SceneTheme.sunrise]; Plan 03-03 wires
+/// the real [WalkScene] for [SceneTheme.walk]. Car still maps to
+/// [_PendingScene], an interim, calm, non-crashing placeholder replaced by
+/// the real scene later in Plan 03-03 -- not a shipped scope reduction.
 Widget sceneFor(SceneTheme theme) {
   switch (theme) {
     case SceneTheme.disc:
@@ -21,8 +22,7 @@ Widget sceneFor(SceneTheme theme) {
     case SceneTheme.sunrise:
       return const SunriseScene();
     case SceneTheme.walk:
-      // TODO(03-03): replace with the real WalkScene.
-      return const _PendingScene(Color(0xFFBFE0EE));
+      return const WalkScene();
     case SceneTheme.car:
       // TODO(03-03): replace with the real CarScene.
       return const _PendingScene(Color(0xFFF6D9A8));
