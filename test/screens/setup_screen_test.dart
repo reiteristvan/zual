@@ -75,6 +75,54 @@ void main() {
     });
   });
 
+  group('SetupScreen scene selection (SETUP-03)', () {
+    testWidgets(
+      'shows all four scene cards with exact labels; Shrinking disc selected by default',
+      (WidgetTester tester) async {
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        await tester.pumpWidget(_harness(controller));
+
+        for (final label in [
+          'Shrinking disc',
+          'Night to sunrise',
+          'Walking home',
+          'Car on a road',
+        ]) {
+          expect(find.text(label), findsOneWidget);
+        }
+
+        expect(
+          find.byKey(const ValueKey('scene-ring-shrinking disc')),
+          findsOneWidget,
+        );
+
+        controller.dispose();
+      },
+    );
+
+    testWidgets(
+      'tapping a scene card single-selects it, clearing the previous selection',
+      (WidgetTester tester) async {
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        await tester.pumpWidget(_harness(controller));
+
+        await tester.tap(find.text('Walking home'));
+        await tester.pump();
+
+        expect(
+          find.byKey(const ValueKey('scene-ring-walking home')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('scene-ring-shrinking disc')),
+          findsNothing,
+        );
+
+        controller.dispose();
+      },
+    );
+  });
+
   group('SetupScreen -> PlaceholderRunningScreen', () {
     testWidgets(
       'the back control ends the timer and returns to Setup with phase set to setup',
