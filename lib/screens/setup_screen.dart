@@ -8,6 +8,7 @@ import '../settings/setup_preferences.dart';
 import '../theme/app_tokens.dart';
 import '../timer/timer_controller.dart';
 import '../widgets/hold_repeat_button.dart';
+import '../widgets/pressable_surface.dart';
 import '../widgets/scene_grid.dart';
 import 'placeholder_running_screen.dart';
 
@@ -202,7 +203,7 @@ class _SetupScreenState extends State<SetupScreen> {
     final selected = !_showCustom && minutes == _durationMin;
     return Stack(
       children: [
-        _PressableSurface(
+        PressableSurface(
           onTap: () => _selectPreset(minutes),
           color: AppTokens.cardSurface,
           pressedColor: AppTokens.pressed,
@@ -227,7 +228,7 @@ class _SetupScreenState extends State<SetupScreen> {
   Widget _buildCustomCard() {
     return Stack(
       children: [
-        _PressableSurface(
+        PressableSurface(
           onTap: _selectCustom,
           color: AppTokens.cardSurface,
           pressedColor: AppTokens.pressed,
@@ -341,7 +342,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   /// Fixed footer: the Start button, showing the currently selected
   /// duration as two text runs ("Start" + "· {N} min") per UI-SPEC. Uses
-  /// [_PressableSurface] rather than `ElevatedButton` so the pressed fill
+  /// [PressableSurface] rather than `ElevatedButton` so the pressed fill
   /// matches the UI-SPEC's exact `#6E9A68` (Android has no hover — the
   /// design's `hover` state is treated as the pressed state).
   Widget _buildFooter() {
@@ -351,7 +352,7 @@ class _SetupScreenState extends State<SetupScreen> {
         decoration: const BoxDecoration(boxShadow: AppTokens.startShadow),
         child: SizedBox(
           width: double.infinity,
-          child: _PressableSurface(
+          child: PressableSurface(
             key: const ValueKey('start-button'),
             onTap: _handleStart,
             color: AppTokens.accent,
@@ -368,65 +369,6 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// A tappable surface that swaps its fill to [pressedColor] while held, per
-/// the UI-SPEC's pressed/touch-feedback contract (`#FFF7E9` for
-/// preset/Custom/scene cards, `#6E9A68` for Start — Android has no hover, so
-/// the design's `hover` state is treated as the pressed state here). Shared
-/// by the duration/Custom cards and the Start button so pressed-state
-/// tracking lives in exactly one place rather than being duplicated per
-/// call site.
-class _PressableSurface extends StatefulWidget {
-  const _PressableSurface({
-    super.key,
-    required this.onTap,
-    required this.color,
-    required this.pressedColor,
-    required this.borderRadius,
-    required this.child,
-    this.padding = EdgeInsets.zero,
-    this.boxShadow,
-  });
-
-  final VoidCallback onTap;
-  final Color color;
-  final Color pressedColor;
-  final double borderRadius;
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-  final List<BoxShadow>? boxShadow;
-
-  @override
-  State<_PressableSurface> createState() => _PressableSurfaceState();
-}
-
-class _PressableSurfaceState extends State<_PressableSurface> {
-  bool _pressed = false;
-
-  void _setPressed(bool value) {
-    if (_pressed != value) setState(() => _pressed = value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) => _setPressed(true),
-      onTapCancel: () => _setPressed(false),
-      onTapUp: (_) => _setPressed(false),
-      child: Container(
-        padding: widget.padding,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: _pressed ? widget.pressedColor : widget.color,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          boxShadow: widget.boxShadow,
-        ),
-        child: widget.child,
       ),
     );
   }

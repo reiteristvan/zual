@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../scenes/scene_preview.dart';
 import '../scenes/scene_theme.dart';
 import '../theme/app_tokens.dart';
+import 'pressable_surface.dart';
 
 /// A single selectable scene card: a static mini-preview above a
 /// left-aligned label, with the shared 3px accent selection ring when
@@ -12,12 +13,13 @@ import '../theme/app_tokens.dart';
 /// concrete painter type (e.g. `DiscPreviewPainter`) by name, so Phase 3 can
 /// swap in the real scene-at-progress-0 renderer without touching this file.
 ///
-/// Stateful (not stateless) so it can track its own pressed/touch-feedback
-/// state and swap its fill to `#FFF7E9` while held, per the UI-SPEC's
-/// pressed-state contract (Android has no hover — the design's `hover`
-/// state is treated as the pressed state here). The public constructor API
-/// is unchanged from the prior stateless version.
-class SceneCard extends StatefulWidget {
+/// Delegates pressed/touch-feedback tracking (swap fill to `#FFF7E9` while
+/// held, per the UI-SPEC's pressed-state contract — Android has no hover,
+/// so the design's `hover` state is treated as the pressed state here) to
+/// the shared [PressableSurface], rather than tracking `_pressed` itself,
+/// so the Setup screen's preset/Custom/Start surfaces and this card share
+/// exactly one implementation of that contract.
+class SceneCard extends StatelessWidget {
   const SceneCard({
     super.key,
     required this.preview,
@@ -38,54 +40,38 @@ class SceneCard extends StatefulWidget {
   final VoidCallback onTap;
 
   @override
-  State<SceneCard> createState() => _SceneCardState();
-}
-
-class _SceneCardState extends State<SceneCard> {
-  bool _pressed = false;
-
-  void _setPressed(bool value) {
-    if (_pressed != value) setState(() => _pressed = value);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) => _setPressed(true),
-      onTapCancel: () => _setPressed(false),
-      onTapUp: (_) => _setPressed(false),
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: _pressed ? AppTokens.pressed : AppTokens.cardSurface,
-              borderRadius: BorderRadius.circular(AppTokens.cardRadius),
-              boxShadow: AppTokens.cardShadow,
-            ),
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(
-                    AppTokens.sceneThumbRadius,
-                  ),
-                  child: SizedBox(
-                    height: 74,
-                    width: double.infinity,
-                    child: CustomPaint(painter: widget.preview),
-                  ),
+    return Stack(
+      children: [
+        PressableSurface(
+          onTap: onTap,
+          color: AppTokens.cardSurface,
+          pressedColor: AppTokens.pressed,
+          borderRadius: AppTokens.cardRadius,
+          boxShadow: AppTokens.cardShadow,
+          padding: const EdgeInsets.all(10),
+          alignment: null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  AppTokens.sceneThumbRadius,
                 ),
-                const SizedBox(height: 8),
-                Text(widget.label, style: AppTokens.sceneCardLabel),
-              ],
-            ),
+                child: SizedBox(
+                  height: 74,
+                  width: double.infinity,
+                  child: CustomPaint(painter: preview),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(label, style: AppTokens.sceneCardLabel),
+            ],
           ),
-          if (widget.selected) _buildSelectionRing(),
-        ],
-      ),
+        ),
+        if (selected) _buildSelectionRing(),
+      ],
     );
   }
 
@@ -93,7 +79,7 @@ class _SceneCardState extends State<SceneCard> {
     return Positioned.fill(
       child: IgnorePointer(
         child: Container(
-          key: ValueKey('scene-ring-${widget.label.toLowerCase()}'),
+          key: ValueKey('scene-ring-${label.toLowerCase()}'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTokens.cardRadius),
             border: Border.all(color: AppTokens.accent, width: 3),
