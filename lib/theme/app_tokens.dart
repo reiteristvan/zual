@@ -114,6 +114,13 @@ abstract class AppTokens {
     color: inkSoft,
   );
 
+  /// Scene card label (e.g. "Shrinking disc") — 13/700, ink, left-aligned.
+  static const TextStyle sceneCardLabel = TextStyle(
+    fontSize: 13,
+    fontWeight: FontWeight.w700,
+    color: ink,
+  );
+
   /// Start label ("Start") — 21/700, start label color.
   static const TextStyle startLabelStyle = TextStyle(
     fontSize: 21,

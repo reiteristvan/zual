@@ -106,6 +106,8 @@ void main() {
         final controller = TimerController(clock: () => DateTime(2026, 1, 1));
         await tester.pumpWidget(_harness(controller));
 
+        await tester.ensureVisible(find.text('Walking home'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Walking home'));
         await tester.pump();
 

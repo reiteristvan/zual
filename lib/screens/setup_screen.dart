@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../scenes/scene_theme.dart';
 import '../theme/app_tokens.dart';
 import '../timer/timer_controller.dart';
+import '../widgets/scene_grid.dart';
 import 'placeholder_running_screen.dart';
 
-/// The parent-facing home screen: pick a countdown duration (and, in later
-/// plans, a scene) then tap Start to launch the timer.
+/// The parent-facing home screen: pick a countdown duration and a scene,
+/// then tap Start to launch the timer.
 ///
-/// This plan implements only the duration-preset + Start slice (SETUP-01,
-/// SETUP-04). Scene selection (Plan 02), the custom stepper (Plan 03), and
-/// persisted last-used defaults (Plan 04) extend this screen without
-/// replacing it.
+/// This plan implements the duration-preset + Start slice (SETUP-01,
+/// SETUP-04) and the scene picker (SETUP-03). The custom stepper (Plan 03)
+/// and persisted last-used defaults (Plan 04) extend this screen further
+/// without replacing it.
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key, this.initialDurationMin = 5});
 
@@ -30,6 +32,11 @@ class _SetupScreenState extends State<SetupScreen> {
 
   late int _durationMin;
 
+  /// The currently selected scene theme. Defaults to [SceneTheme.disc] per
+  /// D-09's first-launch default; Plan 04 will pass in a persisted value
+  /// instead of this literal default.
+  SceneTheme _theme = SceneTheme.disc;
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +45,10 @@ class _SetupScreenState extends State<SetupScreen> {
 
   void _selectPreset(int minutes) {
     setState(() => _durationMin = minutes);
+  }
+
+  void _selectScene(SceneTheme theme) {
+    setState(() => _theme = theme);
   }
 
   /// Starts the countdown with the currently selected duration and hands off
@@ -69,8 +80,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     _buildDurationGrid(),
                     const SizedBox(height: 26),
                     _buildSectionLabel('Pick a scene'),
-                    // Empty slot: Plan 02 fills this with the scene grid.
-                    const SizedBox(height: 74),
+                    SceneGrid(selected: _theme, onSelect: _selectScene),
                   ],
                 ),
               ),
