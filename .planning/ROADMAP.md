@@ -102,7 +102,7 @@ Plans:
   4. All scenes are driven solely by the shared 0..1 progress value via a common scene-renderer contract, and nothing on the running screen is tappable by the child.
   5. Scenes animate smoothly without visible jank on a mid/low-end Android device.
 
-**Plans**: 3/3 plans complete
+**Plans**: 4/4 plans complete
 **UI hint**: yes
 
 Plans:
@@ -120,7 +120,7 @@ Plans:
 
 **Wave 4** *(gap closure — CR-01 / Truth #8)*
 
-- [ ] 03-04-PLAN.md — Car wheel visible-spin fix: asymmetric spoke marking + raster-diff regression test (SCENE-04)
+- [x] 03-04-PLAN.md — Car wheel visible-spin fix: asymmetric spoke marking + raster-diff regression test (SCENE-04)
 
 ### Phase 4: Parent Controls & Completion
 
@@ -162,6 +162,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
-| 3. Scene Themes | 3/3 | Complete   | 2026-07-07 |
+| 3. Scene Themes | 4/4 | Complete   | 2026-07-07 |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
