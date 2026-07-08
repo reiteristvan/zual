@@ -28,7 +28,12 @@ class CarPainter extends CustomPainter {
       _wheelTirePaint = Paint()
         ..color = const Color(0xFF6B5E58)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 6;
+        ..strokeWidth = 6,
+      _wheelSpokePaint = Paint()
+        ..color = const Color(0xFF6B5E58)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round;
 
   /// 0..1, already clamped upstream but re-clamped defensively inside
   /// [arrivalLeftFraction].
@@ -51,6 +56,7 @@ class CarPainter extends CustomPainter {
   final Paint _headlightPaint;
   final Paint _wheelRimPaint;
   final Paint _wheelTirePaint;
+  final Paint _wheelSpokePaint;
 
   // The sky gradient is static (not progress-driven) but its shader depends
   // on canvas `size`, so it is cached lazily and only rebuilt if `size`
@@ -245,6 +251,16 @@ class CarPainter extends CustomPainter {
     canvas.rotate(spinAngle);
     canvas.drawCircle(Offset.zero, _wheelDiameter / 2 - 3, _wheelRimPaint);
     canvas.drawCircle(Offset.zero, _wheelDiameter / 2 - 3, _wheelTirePaint);
+    // Deliberate, user-approved fidelity deviation from `design/Zual.dc.html`:
+    // the source wheel is a rotationally symmetric circle (spin invisible
+    // even there), so a spoke marking is added here, reusing only the
+    // already-locked tire color, to make the 0.7s spin actually observable
+    // (CR-01 / Truth #8 / SCENE-04).
+    canvas.drawLine(
+      Offset.zero,
+      Offset(0, -(_wheelDiameter / 2 - 3)),
+      _wheelSpokePaint,
+    );
     canvas.restore();
   }
 
