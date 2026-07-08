@@ -27,16 +27,16 @@ without any numbers or words, roughly how much longer they have to wait.
 - ✓ Flutter project scaffolded with web + Android platform support — existing scaffold (pre-Zual)
 - ✓ Shared countdown/progress state machine (`setup → running → paused → done`), driven by wall-clock time, surviving pause/resume and backgrounding, with screen-wake tied to the running phase — Phase 1
 - ✓ Setup screen (parent-facing): duration via presets (1/5/10/15/30 min) + custom stepper (1–120 min), theme picker (4 scene cards), Start button — Layout A per design spec — Phase 2
+- ✓ Running timer screen (child-facing): full-screen portrait, zero text/numbers, nothing tappable within any scene — Phase 3
+- ✓ Shrinking Disc theme: disc scales down as time passes, green→yellow→red color zones — Phase 3
+- ✓ Night to Sunrise theme: sky interpolates night→day, stars/moon fade, sun rises, hill warms — Phase 3
+- ✓ Walking Home theme: character walks a path toward a house, arrives at time-up — Phase 3
+- ✓ Car on a Road theme: car drives a path toward a destination, arrives at time-up, wheels visibly spin — Phase 3 (gap-closure 03-04)
 
 ### Active
 
-- [ ] Running timer screen (child-facing): full-screen portrait, zero text/numbers, nothing tappable by the child
-- [ ] Shrinking Disc theme: disc scales down as time passes, green→yellow→red color zones
-- [ ] Night to Sunrise theme: sky interpolates night→day, stars/moon fade, sun rises, hill warms
-- [ ] Walking Home theme: character walks a path toward a house, arrives at time-up
-- [ ] Car on a Road theme: car drives a path toward a destination, arrives at time-up
 - [ ] Completed state: soft two-tone chime, theme settles into end visual, breathing "All done" pill to return to Setup
-- [ ] Parent controls overlay: hidden ~850ms long-press on running screen opens bottom sheet (Pause/Resume, End timer, Keep watching)
+- [ ] Parent controls overlay: hidden ~850ms long-press on running screen opens bottom sheet (Pause/Resume, End timer, Keep watching) — also replaces the still-visible back `IconButton` on `RunningScreen` (interim scaffolding from Phase 3)
 - [ ] Pixel-accurate implementation of design tokens (colors, typography, radii, spacing, shadows) from `design/README.md`
 - [ ] Play Store publish readiness: app icon, store listing assets, versioning
 
@@ -78,6 +78,8 @@ without any numbers or words, roughly how much longer they have to wait.
 | SetupPreferences clamps durationMin to 1..120 and resolves theme via firstWhere(orElse) on load | Persisted SharedPreferences values are untrusted (rooted device / future app version); never trust stored values to be in-range or a valid enum name | ✓ Good — Phase 2 |
 | persistIfPreset only ever writes a preset duration, never a custom one | A Custom last-use should always restore to the 5-min default preset on next launch, not a persisted custom number (D-10) | ✓ Good — Phase 2 |
 | #E0805F color usage accepted as verification override on Setup screen | Verified against design spec during Phase 2 verification; documented deviation, not a defect | ✓ Accepted — Phase 2 |
+| All 4 scenes share one `SceneRenderer`/per-scene `Ticker` contract, each painter a pure function of `TimerController.progress` plus a decorative loop phase | One shared animation spine avoids 4 divergent `AnimationController` implementations and keeps scenes swappable via `scene_registry.sceneFor` | ✓ Good — Phase 3 |
+| Car wheel spin made visible via a single asymmetric spoke marking (reusing the two already-locked wheel colors), deviating from the design source's rotationally-symmetric wheel | The literal prototype's CSS-rotated plain circle has an identical raster at every angle, so a code review (CR-01/Truth #8) caught the spin as a visual no-op; user approved the minimal fix over silently shipping an invisible animation | ✓ Good — Phase 3 gap-closure 03-04 |
 
 ## Evolution
 
@@ -97,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-07 after Phase 2: Setup Screen*
+*Last updated: 2026-07-08 after Phase 3: Scene Themes*
