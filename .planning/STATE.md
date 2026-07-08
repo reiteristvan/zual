@@ -2,44 +2,44 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: scene-themes
-status: executing
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-07-07T20:20:54.588Z"
-last_activity: 2026-07-07
-last_activity_desc: Phase 03 execution started
+current_phase: 4
+current_phase_name: Parent Controls & Completion
+status: planning
+stopped_at: Phase 03 complete (UAT 1/1 passed, security threats_open 0); ready to plan Phase 4
+last_updated: "2026-07-08T09:53:38.463Z"
+last_activity: 2026-07-08
+last_activity_desc: Phase 03 complete, transitioned to Phase 4
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 10
-  percent: 40
+  completed_plans: 11
+  percent: 60
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-07)
+See: .planning/PROJECT.md (updated 2026-07-08)
 
 **Core value:** A child with no concept of clock time can look at the screen from across a room and understand, without any numbers or words, roughly how much longer they have to wait.
-**Current focus:** Phase 03 — scene-themes
+**Current focus:** Phase 4 — Parent Controls & Completion
 
 ## Current Position
 
-Phase: 03 (scene-themes) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 03
-Last activity: 2026-07-07 — Phase 03 execution started
+Phase: 4 — Parent Controls & Completion
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-08 — Phase 03 complete, transitioned to Phase 4
 
-Progress: [████░░░░░░] 40%
+Progress: [████████████████████] 11/11 plans (100%)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 7
+- Total plans completed: 11
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -49,6 +49,7 @@ Progress: [████░░░░░░] 40%
 |-------|-------|-------|----------|
 | 1 | 2 | - | - |
 | 02 | 5 | - | - |
+| 03 | 4 | - | - |
 
 **Recent Trend:**
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 02/Plan 05]: Sourced Baloo 2 / Quicksand as static instances extracted via fonttools varLib.instancer from the upstream google/fonts variable fonts, verified OS/2.usWeightClass + macStyle bold bit before bundling (Pitfall 5)
 - [Phase 02/Plan 05]: Kept scene-card corner radius at 26px (AppTokens.cardRadius) per design/README.md's Design Tokens table, not the raw Zual.dc.html prototype's 22px on scene-card buttons
 - [Phase 02]: #E0805F destructive-color override accepted — Walking Home scene-preview character body legitimately uses this hex per 02-UI-SPEC.md's own preview table; distinct from the reserved destructive-action affordance use
+- [Phase 3]: All 4 scenes share one SceneRenderer/per-scene Ticker contract, each painter a pure function of TimerController.progress plus a decorative loop phase — avoids 4 divergent AnimationController implementations
+- [Phase 3/gap-closure 03-04]: Car wheel spin made visible via a single asymmetric spoke marking (reusing the two already-locked wheel colors #3A3230/#6B5E58) — deviates from the design source's rotationally-symmetric wheel, which was itself an invisible-spin defect (CR-01/Truth #8)
+- [Phase 3]: SceneRenderer's decorative loopPhase resets to 0 (rather than continuing) when its Ticker is stopped/restarted — latent, not reachable until Phase 4 wires Pause/Resume to the running screen (03-REVIEW.md WR-01)
 
 ### Pending Todos
 
@@ -91,7 +95,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 3]: Needs real low/mid-end Android device (API 24–28) to validate CustomPainter performance before committing the pattern across all 4 scenes.
+- [Phase 3]: Real-device smoothness check (D-03) completed via UAT — confirmed smooth, no jank, on all 4 scenes including the wheel-spoke rotation. Resolved.
+- [Phase 3, carried to Phase 4]: SceneRenderer's loopPhase resets to 0 on ticker stop/restart (see decision above) — must be addressed when Phase 4 wires Pause/Resume, or decorative loops will visibly snap on resume.
 - [Phase 5]: Play Store Families Policy and target-audience declaration must be re-verified in Play Console at submission time (policy wording changes).
 
 ## Deferred Items
@@ -104,6 +109,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-07T13:06:57.194Z
-Stopped at: Phase 3 UI-SPEC approved
-Resume file: .planning/phases/03-scene-themes/03-UI-SPEC.md
+Last session: 2026-07-08
+Stopped at: Phase 3 complete, ready to plan Phase 4
+Resume file: None
