@@ -14,6 +14,7 @@ import '../settings/setup_preferences.dart';
 import '../theme/app_tokens.dart';
 import '../timer/timer_controller.dart';
 import '../timer/timer_phase.dart';
+import '../widgets/pressable_surface.dart';
 
 /// The 850ms hidden long-press threshold (CTRL-01, `04-UI-SPEC.md` §Sheet
 /// Contract's locked `LongPressGestureRecognizer(duration:)` value). Factored
@@ -354,27 +355,24 @@ class _ParentControlsSheet extends StatelessWidget {
     final isDone = phase == TimerPhase.done;
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: isDone
-            ? null
+      child: PressableSurface(
+        onTap: isDone
+            ? () {}
             : () {
                 final ctrl = context.read<TimerController>();
                 isRunning ? ctrl.pause() : ctrl.resume();
               },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTokens.accent,
-          foregroundColor: AppTokens.startLabel,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-          ),
-        ),
+        color: AppTokens.accent,
+        pressedColor: AppTokens.accentPressed,
+        borderRadius: 22,
+        padding: const EdgeInsets.symmetric(vertical: 18),
         child: Text(
           isDone ? 'Done' : (isRunning ? 'Pause' : 'Resume'),
           style: const TextStyle(
             fontFamily: AppTokens.fontQuicksand,
             fontSize: 19,
             fontWeight: FontWeight.w700,
+            color: AppTokens.startLabel,
           ),
         ),
       ),
@@ -384,26 +382,23 @@ class _ParentControlsSheet extends StatelessWidget {
   Widget _buildEndTimerButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
+      child: PressableSurface(
+        onTap: () {
           context.read<TimerController>().endTimer();
           Navigator.of(context).pop();
           onEndTimer();
         },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTokens.destructive,
-          foregroundColor: AppTokens.startLabel,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-          ),
-        ),
+        color: AppTokens.destructive,
+        pressedColor: AppTokens.destructivePressed,
+        borderRadius: 22,
+        padding: const EdgeInsets.symmetric(vertical: 18),
         child: const Text(
           'End timer',
           style: TextStyle(
             fontFamily: AppTokens.fontQuicksand,
             fontSize: 19,
             fontWeight: FontWeight.w700,
+            color: AppTokens.startLabel,
           ),
         ),
       ),
