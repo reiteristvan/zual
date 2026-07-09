@@ -34,6 +34,10 @@ abstract class SceneRendererState<T extends SceneRenderer> extends State<T>
   double _progress = 0.0;
   Duration _elapsedSinceStart = Duration.zero;
 
+  // Accumulates elapsed time across ticker stop/start segments so
+  // loopPhase() never resets when the ticker restarts (D-10).
+  Duration _loopBaseOffset = Duration.zero;
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +46,7 @@ abstract class SceneRendererState<T extends SceneRenderer> extends State<T>
   }
 
   void _onTick(Duration elapsed) {
-    _elapsedSinceStart = elapsed;
+    _elapsedSinceStart = _loopBaseOffset + elapsed;
     final fresh = context.read<TimerController>().progress;
     if (fresh != _progress) {
       setState(() => _progress = fresh);
@@ -69,6 +73,7 @@ abstract class SceneRendererState<T extends SceneRenderer> extends State<T>
     if (phase == TimerPhase.running && !_ticker.isTicking) {
       _ticker.start();
     } else if (phase != TimerPhase.running && _ticker.isTicking) {
+      _loopBaseOffset = _elapsedSinceStart; // snapshot before stopping
       _ticker.stop();
     }
   }
