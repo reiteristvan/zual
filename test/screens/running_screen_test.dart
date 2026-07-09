@@ -26,6 +26,12 @@ class _FakeChimePlayer implements ChimePlayer {
 /// production (mirrors the real `main.dart` wiring), using an injected-clock
 /// controller so this suite never depends on wall-clock time. Mirrors
 /// `test/screens/setup_screen_test.dart`'s `_harness` shape.
+///
+/// [RunningScreen] is pushed onto a placeholder root route (via
+/// [_RunningScreenHost]) rather than being the app's own `home`, so its
+/// `Navigator.pop()` calls (End timer, auto-pop-on-done) have somewhere real
+/// to return to -- mirroring production, where [RunningScreen] is always
+/// pushed from `SetupScreen`, never the root route itself.
 Widget _harness(
   TimerController controller, {
   SceneTheme theme = SceneTheme.disc,
@@ -35,13 +41,50 @@ Widget _harness(
   return ChangeNotifierProvider<TimerController>.value(
     value: controller,
     child: MaterialApp(
-      home: RunningScreen(
+      home: _RunningScreenHost(
         theme: theme,
         chimePlayer: chimePlayer ?? const NoopChimePlayer(),
         soundOn: soundOn ?? ValueNotifier<bool>(true),
       ),
     ),
   );
+}
+
+class _RunningScreenHost extends StatefulWidget {
+  const _RunningScreenHost({
+    required this.theme,
+    required this.chimePlayer,
+    required this.soundOn,
+  });
+
+  final SceneTheme theme;
+  final ChimePlayer chimePlayer;
+  final ValueNotifier<bool> soundOn;
+
+  @override
+  State<_RunningScreenHost> createState() => _RunningScreenHostState();
+}
+
+class _RunningScreenHostState extends State<_RunningScreenHost> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => RunningScreen(
+            theme: widget.theme,
+            chimePlayer: widget.chimePlayer,
+            soundOn: widget.soundOn,
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => const Scaffold();
 }
 
 /// Pumps just enough frames for the widget tree to settle, instead of
@@ -54,6 +97,28 @@ Future<void> _pumpPastTransition(WidgetTester tester) async {
 }
 
 void main() {
+  group('RunningScreen chimePlayer injection', () {
+    testWidgets(
+      'accepts an injected ChimePlayer without touching a real platform '
+      'channel (harness/fake wiring proven ahead of Plan 04-05\'s chime '
+      'trigger tests)',
+      (WidgetTester tester) async {
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        controller.start(5);
+        final fakeChimePlayer = _FakeChimePlayer();
+        await tester.pumpWidget(
+          _harness(controller, chimePlayer: fakeChimePlayer),
+        );
+        await _pumpPastTransition(tester);
+
+        expect(find.byType(RunningScreen), findsOneWidget);
+        expect(fakeChimePlayer.playCount, 0);
+
+        controller.dispose();
+      },
+    );
+  });
+
   group('RunningScreen Parent Controls long-press gate (CTRL-01)', () {
     testWidgets(
       'a sustained ~850ms press opens the Parent Controls sheet',
@@ -132,6 +197,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 900));
       await gesture.up();
       await tester.pump();
+      // Let the sheet's enter transition finish sliding into place before
+      // interacting with it -- pumpAndSettle() hangs against RunningScreen's
+      // continuously-ticking scene (03-RESEARCH.md Pitfall 4), so a bounded
+      // pump is used instead.
+      await tester.pump(const Duration(milliseconds: 300));
     }
 
     testWidgets(
@@ -166,7 +236,11 @@ void main() {
 
         await openSheet(tester);
         await tester.tap(find.text('End timer'));
-        await tester.pumpAndSettle();
+        // Two Navigator.pop() calls fire here (the sheet, then
+        // RunningScreen), each with its own exit transition -- pump twice
+        // to let both settle.
+        await _pumpPastTransition(tester);
+        await _pumpPastTransition(tester);
 
         expect(controller.phase, TimerPhase.setup);
         expect(find.byType(RunningScreen), findsNothing);
@@ -185,7 +259,7 @@ void main() {
 
         await openSheet(tester);
         await tester.tap(find.text('Keep watching'));
-        await tester.pumpAndSettle();
+        await _pumpPastTransition(tester);
 
         expect(controller.phase, TimerPhase.running);
         expect(find.byType(RunningScreen), findsOneWidget);
