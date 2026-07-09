@@ -135,8 +135,23 @@ Plans:
   3. On completion a soft two-tone chime plays (unless muted) with no alarm or celebration, and the active scene settles into its end visual.
   4. The finished state shows a gently breathing "All done" pill that returns to Setup when the parent taps it.
 
-**Plans**: TBD
+**Plans**: 5 plans
 **UI hint**: yes
+
+Plans:
+**Wave 1** *(parallel — independent files)*
+
+- [ ] 04-01-PLAN.md — Audio foundation: pure-Dart chime synthesizer + ChimePlayer interface/adapter + audioplayers dependency (CTRL-03)
+- [ ] 04-02-PLAN.md — Mute persistence: SetupPreferences.soundOn scalar with validate-on-read fallback (CTRL-02)
+- [ ] 04-03-PLAN.md — Decorative loop continuity fix (D-10): resume loops from frozen phase across pause/resume (CTRL-02)
+
+**Wave 2** *(depends on 04-01, 04-02)*
+
+- [ ] 04-04-PLAN.md — Parent Controls: hidden 850ms long-press → blurred bottom sheet (Pause/Resume, End timer, Keep watching, mute); deletes interim back button (CTRL-01, CTRL-02)
+
+**Wave 3** *(depends on 04-04)*
+
+- [ ] 04-05-PLAN.md — Completion: done-edge chime (mute-gated, foreground-safe) + breathing "All done" pill; removes auto-pop (CTRL-03, CTRL-04)
 
 ### Phase 5: Play Store Readiness
 
@@ -162,6 +177,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
-| 3. Scene Themes | 4/4 | Complete   | 2026-07-07 |
+| 3. Scene Themes | 4/4 | Complete    | 2026-07-07 |
 | 4. Parent Controls & Completion | 0/TBD | Not started | - |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
