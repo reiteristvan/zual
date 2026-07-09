@@ -32,11 +32,11 @@ without any numbers or words, roughly how much longer they have to wait.
 - ✓ Night to Sunrise theme: sky interpolates night→day, stars/moon fade, sun rises, hill warms — Phase 3
 - ✓ Walking Home theme: character walks a path toward a house, arrives at time-up — Phase 3
 - ✓ Car on a Road theme: car drives a path toward a destination, arrives at time-up, wheels visibly spin — Phase 3 (gap-closure 03-04)
+- ✓ Completed state: soft two-tone chime (mute-gated, plays once), theme settles into end visual, breathing "All done" pill returns to Setup on tap — Phase 4
+- ✓ Parent controls overlay: hidden ~850ms long-press on running screen opens a blurred-scrim bottom sheet (Pause/Resume, End timer, Keep watching, mute toggle) — replaces the interim visible back `IconButton` from Phase 3 — Phase 4
 
 ### Active
 
-- [ ] Completed state: soft two-tone chime, theme settles into end visual, breathing "All done" pill to return to Setup
-- [ ] Parent controls overlay: hidden ~850ms long-press on running screen opens bottom sheet (Pause/Resume, End timer, Keep watching) — also replaces the still-visible back `IconButton` on `RunningScreen` (interim scaffolding from Phase 3)
 - [ ] Pixel-accurate implementation of design tokens (colors, typography, radii, spacing, shadows) from `design/README.md`
 - [ ] Play Store publish readiness: app icon, store listing assets, versioning
 
@@ -55,7 +55,7 @@ without any numbers or words, roughly how much longer they have to wait.
 - **Existing codebase**: brownfield — Flutter "Hello World" app already scaffolded (web + Android), see `.planning/codebase/` for full map (STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS).
 - **Design source of truth**: `design/README.md` plus two HTML prototypes (`design/Zual.dc.html` — full interactive prototype; `design/Zual - App Screens.dc.html` — annotated screen-flow board). These are high-fidelity (hifi) — colors, typography, spacing, radii, easing, and timings are final and exact, but the HTML/CSS itself is a reference to recreate using Flutter idioms (CustomPainter/Canvas for scene rendering, AnimationController for the progress-driven loop), not code to port line-for-line.
 - **Design tokens**: full color palette, typography (Baloo 2 + Quicksand), radii, shadows, spacing, and animation timings are specified in `design/README.md` — treat as final.
-- **Sound**: end chime is two soft sine tones (D5 → G5) with a specific envelope, originally generated via Web Audio API — needs a Flutter equivalent (tone generator or bundled short WAV).
+- **Sound**: end chime is two soft sine tones (D5 → G5) with a specific envelope, originally generated via Web Audio API — implemented as a pure-Dart WAV synthesizer (`lib/audio/chime_synth.dart`, no bundled asset) played through an `audioplayers`-backed adapter, Phase 4.
 - **No image assets** — all visuals in the reference design are built from shape primitives (circles, gradients, rounded rects, CSS-border triangles); Flutter implementation should use CustomPainter/Canvas or similar vector approaches rather than bitmap assets.
 
 ## Constraints
@@ -80,6 +80,10 @@ without any numbers or words, roughly how much longer they have to wait.
 | #E0805F color usage accepted as verification override on Setup screen | Verified against design spec during Phase 2 verification; documented deviation, not a defect | ✓ Accepted — Phase 2 |
 | All 4 scenes share one `SceneRenderer`/per-scene `Ticker` contract, each painter a pure function of `TimerController.progress` plus a decorative loop phase | One shared animation spine avoids 4 divergent `AnimationController` implementations and keeps scenes swappable via `scene_registry.sceneFor` | ✓ Good — Phase 3 |
 | Car wheel spin made visible via a single asymmetric spoke marking (reusing the two already-locked wheel colors), deviating from the design source's rotationally-symmetric wheel | The literal prototype's CSS-rotated plain circle has an identical raster at every angle, so a code review (CR-01/Truth #8) caught the spin as a visual no-op; user approved the minimal fix over silently shipping an invisible animation | ✓ Good — Phase 3 gap-closure 03-04 |
+| `ChimePlayer`/`NoopChimePlayer`/`AudioplayersChimePlayer` mirrors the existing `ScreenWake`/`WakelockScreenWake` interface-wraps-a-plugin shape exactly | Keeps the codebase's plugin-isolation pattern consistent — only one file per feature imports the underlying platform plugin, everything else depends on a plugin-free interface | ✓ Good — Phase 4 |
+| `audioplayers` package approved via direct pub.dev verification (blue-fire.xyz verified publisher, 1M+ downloads) at a blocking human checkpoint before install | Pub.dev packages fall outside automated npm/pip/cargo legitimacy tooling, so new pub dependencies get a manual look before `flutter pub add` | ✓ Good — Phase 4 |
+| `SceneRenderer`'s decorative loop phase accumulates an offset across `Ticker` stop/restart segments instead of resetting to 0 | Carried-forward Phase 3 defect (D-10): loops would visibly snap back to their start phase every time Pause/Resume stopped and restarted the ticker | ✓ Good — Phase 4 |
+| Parent Controls sheet buttons use the codebase's `PressableSurface` widget (not plain `ElevatedButton`) | Code review (WR-03) found plain `ElevatedButton` never applied the UI-SPEC's locked pressed-state colors; `PressableSurface` is the established pattern for that | ✓ Good — Phase 4 code review fix |
 
 ## Evolution
 
@@ -99,4 +103,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-08 after Phase 3: Scene Themes*
+*Last updated: 2026-07-09 after Phase 4: Parent Controls & Completion*
