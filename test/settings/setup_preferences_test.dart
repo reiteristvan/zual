@@ -74,5 +74,30 @@ void main() {
       expect(restored.durationMin, 30);
       expect(restored.theme, SceneTheme.sunrise);
     });
+
+    test('load() with no stored soundOn returns true (D-04 default)', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      final prefs = await SetupPreferences.load();
+
+      expect(prefs.soundOn, true);
+    });
+
+    test('persistSoundOn(false) then load() round-trips soundOn false', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      await SetupPreferences.persistSoundOn(false);
+      final restored = await SetupPreferences.load();
+
+      expect(restored.soundOn, false);
+    });
+
+    test('load() falls back to true for a wrong-typed stored soundOn (Tampering, T-04-03)', () async {
+      SharedPreferences.setMockInitialValues({'soundOn': 'not-a-bool'});
+
+      final prefs = await SetupPreferences.load();
+
+      expect(prefs.soundOn, true);
+    });
   });
 }
