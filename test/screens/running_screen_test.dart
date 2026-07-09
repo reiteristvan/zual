@@ -291,4 +291,138 @@ void main() {
       },
     );
   });
+
+  group('RunningScreen completion chime (CTRL-03)', () {
+    testWidgets(
+      'chime plays exactly once on the transition into done, and further '
+      'notifications while parked in done do not replay it',
+      (WidgetTester tester) async {
+        var now = DateTime(2026, 1, 1, 12, 0, 0);
+        final controller = TimerController(clock: () => now);
+        controller.start(1);
+        final fakeChimePlayer = _FakeChimePlayer();
+        await tester.pumpWidget(
+          _harness(controller, chimePlayer: fakeChimePlayer),
+        );
+        await _pumpPastTransition(tester);
+
+        expect(fakeChimePlayer.playCount, 0);
+
+        now = now.add(const Duration(minutes: 1, seconds: 1));
+        controller.syncToWallClock();
+        await tester.pump();
+
+        expect(controller.phase, TimerPhase.done);
+        expect(fakeChimePlayer.playCount, 1);
+
+        // A further TimerController notification while parked in done must
+        // not replay the chime.
+        controller.syncToWallClock();
+        await tester.pump();
+
+        expect(fakeChimePlayer.playCount, 1);
+
+        controller.dispose();
+      },
+    );
+
+    testWidgets(
+      'chime is skipped entirely when soundOn is false at the done '
+      'transition',
+      (WidgetTester tester) async {
+        var now = DateTime(2026, 1, 1, 12, 0, 0);
+        final controller = TimerController(clock: () => now);
+        controller.start(1);
+        final fakeChimePlayer = _FakeChimePlayer();
+        await tester.pumpWidget(
+          _harness(
+            controller,
+            chimePlayer: fakeChimePlayer,
+            soundOn: ValueNotifier<bool>(false),
+          ),
+        );
+        await _pumpPastTransition(tester);
+
+        now = now.add(const Duration(minutes: 1, seconds: 1));
+        controller.syncToWallClock();
+        await tester.pump();
+
+        expect(controller.phase, TimerPhase.done);
+        expect(fakeChimePlayer.playCount, 0);
+
+        controller.dispose();
+      },
+    );
+
+    testWidgets(
+      'a RunningScreen that mounts already in done (foreground-reveal, '
+      'D-07) still plays the chime once',
+      (WidgetTester tester) async {
+        var now = DateTime(2026, 1, 1, 12, 0, 0);
+        final controller = TimerController(clock: () => now);
+        controller.start(1);
+        now = now.add(const Duration(minutes: 1, seconds: 1));
+        controller.syncToWallClock();
+        expect(controller.phase, TimerPhase.done);
+
+        final fakeChimePlayer = _FakeChimePlayer();
+        await tester.pumpWidget(
+          _harness(controller, chimePlayer: fakeChimePlayer),
+        );
+        await _pumpPastTransition(tester);
+
+        expect(fakeChimePlayer.playCount, 1);
+
+        controller.dispose();
+      },
+    );
+  });
+
+  group('RunningScreen "All done" pill (CTRL-04)', () {
+    testWidgets(
+      'the pill is absent while running and appears once done',
+      (WidgetTester tester) async {
+        var now = DateTime(2026, 1, 1, 12, 0, 0);
+        final controller = TimerController(clock: () => now);
+        controller.start(1);
+        await tester.pumpWidget(_harness(controller));
+        await _pumpPastTransition(tester);
+
+        expect(find.text('All done — tap when ready'), findsNothing);
+
+        now = now.add(const Duration(minutes: 1, seconds: 1));
+        controller.syncToWallClock();
+        await tester.pump();
+
+        expect(find.text('All done — tap when ready'), findsOneWidget);
+
+        controller.dispose();
+      },
+    );
+
+    testWidgets(
+      'tapping the pill calls endTimer() and pops RunningScreen back to '
+      'Setup',
+      (WidgetTester tester) async {
+        var now = DateTime(2026, 1, 1, 12, 0, 0);
+        final controller = TimerController(clock: () => now);
+        controller.start(1);
+        await tester.pumpWidget(_harness(controller));
+        await _pumpPastTransition(tester);
+
+        now = now.add(const Duration(minutes: 1, seconds: 1));
+        controller.syncToWallClock();
+        await tester.pump();
+
+        await tester.tap(find.text('All done — tap when ready'));
+        await _pumpPastTransition(tester);
+        await _pumpPastTransition(tester);
+
+        expect(controller.phase, TimerPhase.setup);
+        expect(find.byType(RunningScreen), findsNothing);
+
+        controller.dispose();
+      },
+    );
+  });
 }
