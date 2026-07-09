@@ -166,7 +166,23 @@ Plans:
   3. A content-rating / target-audience declaration is completed and reviewed against Families Policy considerations.
   4. A release build installs and runs a full countdown on a real Android device.
 
-**Plans**: TBD
+**Plans**: 5 plans
+**Mode:** mvp
+
+Plans:
+**Wave 1** *(parallel — independent files)*
+
+- [ ] 05-01-PLAN.md — App identity + production signing: com.ireiter.zual applicationId, key.properties-backed release signing, signed .aab (PUBLISH-01)
+- [ ] 05-02-PLAN.md — Icon render spike (Wave 0 gate): prove headless SunrisePainter → PNG path + reusable renderPainterToPng helper (PUBLISH-02)
+- [ ] 05-03-PLAN.md — Store listing docs: privacy policy page (GitHub Pages) + content-rating/target-audience answer sheet + store descriptions (PUBLISH-02)
+
+**Wave 2** *(blocked on 05-02 spike)*
+
+- [ ] 05-04-PLAN.md — Icon asset generation: sunrise-motif foreground/background PNGs + flutter_launcher_icons adaptive icon set (PUBLISH-02)
+
+**Wave 3** *(blocked on 05-01 + 05-04)*
+
+- [ ] 05-05-PLAN.md — Publishable build verification: signed release runs full countdown on real device + 4 full-bleed per-scene screenshots (PUBLISH-01, PUBLISH-02)
 
 ## Progress
 
@@ -179,4 +195,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
 | 3. Scene Themes | 4/4 | Complete    | 2026-07-07 |
 | 4. Parent Controls & Completion | 5/5 | Complete    | 2026-07-09 |
-| 5. Play Store Readiness | 0/TBD | Not started | - |
+| 5. Play Store Readiness | 0/5 | Planned | - |
