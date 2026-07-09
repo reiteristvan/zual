@@ -33,7 +33,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Parent Controls & Completion
 
-- [ ] **CTRL-01**: A hidden ~850ms long-press anywhere on the running screen opens a Parent Controls bottom sheet
+- [x] **CTRL-01**: A hidden ~850ms long-press anywhere on the running screen opens a Parent Controls bottom sheet
 - [x] **CTRL-02**: Parent Controls sheet offers Pause/Resume, End timer (returns to Setup), Keep watching (dismiss), and a sound mute toggle
 - [x] **CTRL-03**: On completion, the app plays a soft two-tone chime (no alarm, no celebration) and the active scene settles into its end state
 - [x] **CTRL-04**: Completed state shows a gently breathing "All done" pill that returns to Setup when tapped by the parent
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCENE-03 | Phase 3 | Complete |
 | SCENE-04 | Phase 3 | Complete |
 | SCENE-05 | Phase 3 | Complete |
-| CTRL-01 | Phase 4 | Pending |
+| CTRL-01 | Phase 4 | Complete |
 | CTRL-02 | Phase 4 | Complete |
 | CTRL-03 | Phase 4 | Complete |
 | CTRL-04 | Phase 4 | Complete |
