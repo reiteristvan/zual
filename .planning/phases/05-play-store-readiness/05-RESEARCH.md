@@ -395,17 +395,17 @@ Note: plain `test()` (not `testWidgets()`) inside a `flutter_test`-imported file
 
 **If this table is empty:** N/A — see entries above.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exact pixel sizes to export for `flutter_launcher_icons` input PNGs**
    - What we know: `flutter_launcher_icons` wants a single square foreground/background source image per platform (commonly 1024×1024 for `image_path`, with adaptive foreground typically designed on a 108dp/432px "safe zone" canvas at xxxhdpi).
    - What's unclear: The exact recommended source resolution isn't pinned to one specific number across all `flutter_launcher_icons` docs fetched.
-   - Recommendation: Export at 1024×1024 for both foreground and background source PNGs (a safe, commonly-used size that downsamples cleanly to every required density) — this is Claude's discretion per CONTEXT.md and doesn't need re-litigation.
+   - Recommendation: Export at 1024×1024 for both foreground and background source PNGs (a safe, commonly-used size that downsamples cleanly to every required density) — this is Claude's discretion per CONTEXT.md and doesn't need re-litigation. **RESOLVED: 1024×1024 for both foreground and background source PNGs.**
 
 2. **Whether GitHub Pages should serve from a `gh-pages` branch, `/docs` folder on `main`, or a GitHub Actions build**
    - What we know: All three are supported; `/docs` folder on `main` requires zero extra tooling (no Action, no extra branch) and is the simplest for a single static HTML page.
    - What's unclear: Repo-specific preference (e.g. does the user want `.planning`/build hygiene concerns to keep `docs/` clean of unrelated content?).
-   - Recommendation: Use `/docs` folder on `main` unless the planner finds a reason to prefer a dedicated `gh-pages` branch — simplest, zero-additional-CI setup, matches "minimal setup" framing in CONTEXT.md's research ask.
+   - Recommendation: Use `/docs` folder on `main` unless the planner finds a reason to prefer a dedicated `gh-pages` branch — simplest, zero-additional-CI setup, matches "minimal setup" framing in CONTEXT.md's research ask. **RESOLVED: `/docs` folder on `main`.**
 
 ## Environment Availability
 
