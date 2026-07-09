@@ -48,6 +48,26 @@ abstract class AppTokens {
   /// Start button label color.
   static const Color startLabel = Color(0xFFFFFDF7);
 
+  /// Parent Controls sheet fill (`design/README.md` §G).
+  static const Color sheetBg = Color(0xFFFBF4E8);
+
+  /// End timer button fill — the first genuine destructive-action use of
+  /// this hex (`04-UI-SPEC.md` Color table).
+  static const Color destructive = Color(0xFFE0805F);
+
+  /// End timer button pressed/touch-feedback state.
+  static const Color destructivePressed = Color(0xFFD06E4C);
+
+  /// Full-screen scrim behind the Parent Controls sheet:
+  /// `rgba(40,32,26,0.42)`.
+  static const Color scrim = Color(0x6B28201A);
+
+  /// "All done" pill surface: `rgba(255,253,247,0.94)`.
+  static const Color pillSurface = Color(0xF0FFFDF7);
+
+  /// Parent Controls sheet grab handle: `rgba(75,64,56,0.2)`.
+  static const Color grabHandle = Color(0x334B4038);
+
   // Radii
   /// Preset/Custom button and Start button corner radius baseline.
   static const double buttonRadius = 22;
@@ -77,6 +97,15 @@ abstract class AppTokens {
       color: Color(0x0D4B4038),
       offset: Offset(0, 2),
       blurRadius: 6,
+    ),
+  ];
+
+  /// Parent Controls sheet drop shadow: `0 -10px 40px rgba(0,0,0,0.25)`.
+  static const List<BoxShadow> sheetShadow = [
+    BoxShadow(
+      color: Color(0x40000000),
+      offset: Offset(0, -10),
+      blurRadius: 40,
     ),
   ];
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../audio/chime_player.dart';
 import '../scenes/scene_theme.dart';
 import '../settings/setup_preferences.dart';
 import '../theme/app_tokens.dart';
@@ -21,11 +22,24 @@ import 'running_screen.dart';
 /// [initialDurationMin]/[initialTheme] from persisted values and persists the
 /// selection again on Start.
 class SetupScreen extends StatefulWidget {
-  const SetupScreen({
+  SetupScreen({
     super.key,
+    ChimePlayer? chimePlayer,
+    ValueNotifier<bool>? soundOn,
     this.initialDurationMin = 5,
     this.initialTheme = SceneTheme.disc,
-  });
+  }) : chimePlayer = chimePlayer ?? const NoopChimePlayer(),
+       soundOn = soundOn ?? ValueNotifier<bool>(true);
+
+  /// Plays the completion chime; forwarded to the [RunningScreen] pushed by
+  /// [_handleStart] (Phase 4, so Plan 04-05 can fire it on
+  /// `TimerPhase.done`).
+  final ChimePlayer chimePlayer;
+
+  /// The shared mute preference; forwarded to the [RunningScreen] pushed by
+  /// [_handleStart] so the Parent Controls sheet's mute toggle and the
+  /// chime trigger share one source of truth (D-01/D-02).
+  final ValueNotifier<bool> soundOn;
 
   /// The duration (in minutes) pre-selected when this screen first mounts.
   /// Defaults to 5 per D-09's first-launch default; `main()` passes in a
@@ -121,7 +135,13 @@ class _SetupScreenState extends State<SetupScreen> {
       ).catchError((_) {}),
     );
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RunningScreen(theme: _theme)),
+      MaterialPageRoute(
+        builder: (_) => RunningScreen(
+          theme: _theme,
+          chimePlayer: widget.chimePlayer,
+          soundOn: widget.soundOn,
+        ),
+      ),
     );
   }
 
