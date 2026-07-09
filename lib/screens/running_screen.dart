@@ -262,7 +262,7 @@ class _ParentControlsSheet extends StatelessWidget {
 
   void _toggleSound() {
     soundOn.value = !soundOn.value;
-    unawaited(SetupPreferences.persistSoundOn(soundOn.value));
+    unawaited(SetupPreferences.persistSoundOn(soundOn.value).catchError((_) {}));
   }
 
   @override
