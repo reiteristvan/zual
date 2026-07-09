@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Timer State-Machine Foundation** - Drift-free, lifecycle-safe countdown engine every screen depends on (completed 2026-07-07)
 - [x] **Phase 2: Setup Screen** - Parent configures duration + scene and launches the timer; last-used settings remembered (all plans executed; awaiting human UAT sign-off) (completed 2026-07-07)
 - [x] **Phase 3: Scene Themes** - Four full-screen wordless scenes driven by a shared progress value (completed 2026-07-07)
-- [ ] **Phase 4: Parent Controls & Completion** - Hidden long-press controls, mute, calm chime, and finished state
+- [x] **Phase 4: Parent Controls & Completion** - Hidden long-press controls, mute, calm chime, and finished state (completed 2026-07-09)
 - [ ] **Phase 5: Play Store Readiness** - Real app identity, signing, and store listing assets for publication
 
 ## Phase Details
@@ -135,7 +135,7 @@ Plans:
   3. On completion a soft two-tone chime plays (unless muted) with no alarm or celebration, and the active scene settles into its end visual.
   4. The finished state shows a gently breathing "All done" pill that returns to Setup when the parent taps it.
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans complete
 **UI hint**: yes
 
 Plans:
@@ -151,7 +151,7 @@ Plans:
 
 **Wave 3** *(depends on 04-04)*
 
-- [ ] 04-05-PLAN.md — Completion: done-edge chime (mute-gated, foreground-safe) + breathing "All done" pill; removes auto-pop (CTRL-03, CTRL-04)
+- [x] 04-05-PLAN.md — Completion: done-edge chime (mute-gated, foreground-safe) + breathing "All done" pill; removes auto-pop (CTRL-03, CTRL-04)
 
 ### Phase 5: Play Store Readiness
 
@@ -178,5 +178,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
 | 3. Scene Themes | 4/4 | Complete    | 2026-07-07 |
-| 4. Parent Controls & Completion | 4/5 | In Progress|  |
+| 4. Parent Controls & Completion | 5/5 | Complete   | 2026-07-09 |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
