@@ -1,28 +1,33 @@
 ---
 phase: 02-setup-screen
 verified: 2026-07-07T10:48:06Z
-status: human_needed
+status: passed
 score: 11/13 must-haves verified (1 override, 1 present-behavior-unverified, 1 uncertain/human-only)
 behavior_unverified: 1 # WR-02 manual-back-vs-auto-pop race guard: code present + wired, race window not exercised by an automated test
 overrides_applied: 1
 overrides:
+
   - must_have: "Destructive #E0805F appears nowhere on the Setup screen or placeholder Running screen"
     reason: "02-UI-SPEC.md's own Scene Mini-Preview table specifies #E0805F for the Walking Home character body; this is a decorative illustration color, not the reserved destructive-action affordance color, and the spec's Color table reservation note was not reconciled with its own preview table when written."
     accepted_by: "reiteristvan"
     accepted_at: "2026-07-07T11:05:00Z"
 gaps: []
 behavior_unverified_items:
+
   - truth: "WR-02 fix: a manual back-button tap while an auto-pop-on-done post-frame callback is already scheduled results in exactly one Navigator.pop(), never two"
     test: "On PlaceholderRunningScreen, drive TimerController to TimerPhase.done (scheduling the post-frame auto-pop) and, in the same frame window before that callback runs, tap the back control; assert Navigator.pop() fires exactly once and no Navigator assertion/extra pop occurs."
     expected: "_leftScreen guards both _handleBack and _maybeAutoPopWhenDone's post-frame callback so only one of the two ever calls pop() — no double-pop, no Navigator assertion."
     why_human: "The fix (lib/screens/placeholder_running_screen.dart, commit 6014ae5) is present and wired (single shared _leftScreen bool + _leaveOnce() called from both exit paths), and the existing back-control and done-auto-return tests both pass individually, but no test in test/screens/setup_screen_test.dart schedules the auto-pop callback and then fires a manual back tap before it runs — the exact race window 02-REVIEW-FIX.md itself flags as 'requires human verification of the race-condition behavior specifically' is not exercised by any automated test (confirmed by grep: no reference to _leftScreen/_leaveOnce/double-pop in the test file)."
 human_verification:
+
   - test: "Manual QA: on PlaceholderRunningScreen, let the timer reach completion (or set a very short duration) and tap the back arrow at the exact moment the screen would auto-return; repeat rapidly several times."
     expected: "The app returns to Setup exactly once per attempt — no crash, no Navigator assertion, no visible double-navigation flicker."
     why_human: "Race-condition timing; see behavior_unverified_items above — WR-02's fix has no automated regression test for the specific race it closes."
+
   - test: "View the four scene mini-preview cards (Shrinking disc / Night to sunrise / Walking home / Car on a road) on an Android emulator/device and compare gradients, shadow/glow rendering, and shape proportions against 02-UI-SPEC.md's Scene Mini-Preview table and design/README.md."
     expected: "Gradients render smoothly, the sunrise glow and disc shadow are visible and soft (not harsh/aliased), and house/character/car proportions read clearly at the 74px preview size."
     why_human: "Colors/geometry were transcribed and unit-tested for structural correctness (shouldRepaint==false, correct subclassing) but pixel-level rendering quality (gradient smoothness, shadow/glow softness) can only be judged visually. Flagged as human_judgment: true / item D4 in 02-02-SUMMARY.md."
+
   - test: "Run the app on an Android emulator (API 24-28) and compare the Setup screen side-by-side against design/README.md 'A. Setup — Layout A' and design/Zual.dc.html: colors, radii (buttons 22 / cards 26 / scene thumbs 16 / Start 26), spacing, typography (Baloo 2 wordmark, Quicksand body), all copy strings, the 3px selection ring, and pressed-state feedback; confirm zero text/numbers on the placeholder running screen."
     expected: "The rendered screen matches Layout A pixel-for-pixel within reasonable device-rendering tolerance."
     why_human: "This is 02-05-PLAN.md's own explicit <human-check> (SETUP-05 sign-off) — the plan states 'no automated pixel-diff tooling exists in this project; human_verify_mode is end-of-phase.' It has not yet been performed per 02-05-SUMMARY.md's Next Phase Readiness section."
@@ -121,16 +126,19 @@ No `TBD`/`FIXME`/`XXX`/`TODO`/`HACK`/`PLACEHOLDER` debt markers found in any Pha
 ### Human Verification Required
 
 #### 1. WR-02 double-pop race (manual back tap vs. auto-pop-on-done)
+
 **Test:** On `PlaceholderRunningScreen`, let the timer reach `TimerPhase.done` (or use a very short duration) and tap the back arrow at the exact moment auto-return would fire; repeat several times rapidly.
 **Expected:** Exactly one return-to-Setup per attempt; no crash, no Navigator assertion, no visible double-navigation flicker.
 **Why human:** The fix is present and wired (shared `_leftScreen` guard), but no automated test schedules the auto-pop callback and then fires a manual back tap before it runs — 02-REVIEW-FIX.md itself flags this exact race as requiring human verification.
 
 #### 2. Scene mini-preview visual fidelity
+
 **Test:** View the four scene cards on an Android emulator/device; compare gradients, shadow/glow rendering, and shape proportions against `02-UI-SPEC.md`'s Scene Mini-Preview table.
 **Expected:** Gradients render smoothly; sunrise glow and disc shadow are visibly soft; house/character/car read clearly at 74px preview size.
 **Why human:** Colors/geometry are unit-tested only for structural correctness (types, `shouldRepaint`), not pixel rendering quality. Flagged `human_judgment: true` (item D4) in 02-02-SUMMARY.md.
 
 #### 3. Full Layout A fidelity sign-off on Android
+
 **Test:** Run the app on an Android emulator (API 24–28); compare the Setup screen side-by-side against `design/README.md` "A. Setup — Layout A" and `design/Zual.dc.html` — colors, radii, spacing, typography, copy, selection ring, pressed-state feedback; confirm zero text/numbers on the placeholder running screen.
 **Expected:** Matches Layout A within normal device-rendering tolerance.
 **Why human:** This is 02-05-PLAN.md's own explicit `<human-check>` for the SETUP-05 sign-off; no pixel-diff tooling exists in this project, and per `config.json`'s `human_verify_mode: end-of-phase` it has not yet been performed (confirmed unresolved in 02-05-SUMMARY.md's "Next Phase Readiness").

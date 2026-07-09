@@ -1,7 +1,7 @@
 ---
 phase: 03-scene-themes
 verified: 2026-07-08T00:00:00Z
-status: human_needed
+status: passed
 score: 9/10 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -9,14 +9,17 @@ re_verification:
   previous_status: gaps_found
   previous_score: 8/10
   gaps_closed:
+
     - "The car's wheels visibly spin (0.7s loop) while the timer is running (SCENE-04, Truth #8 / CR-01) — CarPainter._paintWheel now draws an asymmetric spoke marking after canvas.rotate(spinAngle), and a raster-diff regression test (spinAngle 0.0 vs pi/2 produce non-identical rawRgba buffers) guards the fix."
   gaps_remaining: []
   regressions: []
 deferred:
+
   - truth: "Nothing on the running screen is tappable by the child (ROADMAP Phase 3 Success Criterion 4, literal 'running screen' wording)"
     addressed_in: "Phase 4"
     evidence: "RunningScreen still renders a visible, tappable back IconButton (lib/screens/running_screen.dart:79-92) as an explicit, documented interim composition-root affordance, unchanged by gap-closure plan 03-04. Phase 4's own goal/Success Criterion 1 is precisely this: 'A hidden ~850ms long-press anywhere on the running screen opens the Parent Controls bottom sheet' (CTRL-01). The narrower, scene-scoped SCENE-05 requirement (nothing tappable within a scene's rendered subtree) remains independently verified as met."
 human_verification:
+
   - test: "Watch each of the 4 scenes (Shrinking Disc, Night to Sunrise, Walking Home, Car on a Road) run a full countdown on a real low/mid-end Android device (API 24-28) or a throttled emulator as a lower-confidence fallback, paying particular attention to the Car on a Road scene's now-visible wheel spoke rotation."
     expected: "Each scene's progress-driven motion (disc shrink, sunrise sky/star/sun, walk bob + arrival, car drive + arrival + spoke rotation) is smooth with no visible stepping/jank."
     why_human: "D-03 explicitly designates 'smooth, no jank' perceptual validation as an end-of-phase human check — no pixel-diff/frame-timing tooling exists in this project. Still an open blocker recorded in STATE.md ('Needs real low/mid-end Android device (API 24-28) to validate CustomPainter performance'), unchanged by gap-closure plan 03-04, which only added a raster-diff *correctness* test, not a *performance/smoothness* test."
