@@ -268,7 +268,7 @@ class _ParentControlsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<TimerController>();
-    final isRunning = controller.phase == TimerPhase.running;
+    final phase = controller.phase;
 
     return Container(
       decoration: const BoxDecoration(
@@ -287,7 +287,7 @@ class _ParentControlsSheet extends StatelessWidget {
               const SizedBox(height: 16),
               _buildHeader(),
               const SizedBox(height: 24),
-              _buildPrimaryButton(context, isRunning),
+              _buildPrimaryButton(context, phase),
               const SizedBox(height: 12),
               _buildEndTimerButton(context),
               const SizedBox(height: 18),
@@ -349,14 +349,18 @@ class _ParentControlsSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildPrimaryButton(BuildContext context, bool isRunning) {
+  Widget _buildPrimaryButton(BuildContext context, TimerPhase phase) {
+    final isRunning = phase == TimerPhase.running;
+    final isDone = phase == TimerPhase.done;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          final ctrl = context.read<TimerController>();
-          isRunning ? ctrl.pause() : ctrl.resume();
-        },
+        onPressed: isDone
+            ? null
+            : () {
+                final ctrl = context.read<TimerController>();
+                isRunning ? ctrl.pause() : ctrl.resume();
+              },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTokens.accent,
           foregroundColor: AppTokens.startLabel,
@@ -366,7 +370,7 @@ class _ParentControlsSheet extends StatelessWidget {
           ),
         ),
         child: Text(
-          isRunning ? 'Pause' : 'Resume',
+          isDone ? 'Done' : (isRunning ? 'Pause' : 'Resume'),
           style: const TextStyle(
             fontFamily: AppTokens.fontQuicksand,
             fontSize: 19,
