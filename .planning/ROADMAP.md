@@ -135,7 +135,7 @@ Plans:
   3. On completion a soft two-tone chime plays (unless muted) with no alarm or celebration, and the active scene settles into its end visual.
   4. The finished state shows a gently breathing "All done" pill that returns to Setup when the parent taps it.
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 **UI hint**: yes
 
 Plans:
@@ -147,7 +147,7 @@ Plans:
 
 **Wave 2** *(depends on 04-01, 04-02)*
 
-- [ ] 04-04-PLAN.md — Parent Controls: hidden 850ms long-press → blurred bottom sheet (Pause/Resume, End timer, Keep watching, mute); deletes interim back button (CTRL-01, CTRL-02)
+- [x] 04-04-PLAN.md — Parent Controls: hidden 850ms long-press → blurred bottom sheet (Pause/Resume, End timer, Keep watching, mute); deletes interim back button (CTRL-01, CTRL-02)
 
 **Wave 3** *(depends on 04-04)*
 
@@ -178,5 +178,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Timer State-Machine Foundation | 2/2 | Complete    | 2026-07-07 |
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
 | 3. Scene Themes | 4/4 | Complete    | 2026-07-07 |
-| 4. Parent Controls & Completion | 3/5 | In Progress|  |
+| 4. Parent Controls & Completion | 4/5 | In Progress|  |
 | 5. Play Store Readiness | 0/TBD | Not started | - |
