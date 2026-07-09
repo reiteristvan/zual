@@ -340,28 +340,11 @@ void main() {
   });
 
   group('SetupScreen -> RunningScreen', () {
-    testWidgets(
-      'the back control ends the timer and returns to Setup with phase set to setup',
-      (WidgetTester tester) async {
-        final semantics = tester.ensureSemantics();
-        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
-        await tester.pumpWidget(_harness(controller));
-
-        await tester.tap(find.byKey(const ValueKey('start-button')));
-        await _pumpPastTransition(tester);
-        expect(controller.phase, TimerPhase.running);
-
-        await tester.tap(find.bySemanticsLabel('End timer and return to setup'));
-        await tester.pumpAndSettle();
-
-        expect(controller.phase, TimerPhase.setup);
-        expect(find.byType(SetupScreen), findsOneWidget);
-        expect(find.byType(RunningScreen), findsNothing);
-
-        semantics.dispose();
-        controller.dispose();
-      },
-    );
+    // The visible back IconButton (and its "End timer and return to setup"
+    // semantics label) was deleted outright in Phase 4 (04-04), replaced by
+    // the hidden long-press Parent Controls sheet -- see
+    // test/screens/running_screen_test.dart for CTRL-01/CTRL-02 coverage of
+    // the new exit path (End timer button inside the sheet).
 
     testWidgets('reaching TimerPhase.done auto-returns to Setup', (
       WidgetTester tester,
