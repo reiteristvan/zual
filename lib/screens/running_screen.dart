@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/chime_player.dart';
+import '../audio/chime_synth.dart';
 import '../scenes/scene_registry.dart';
 import '../scenes/scene_theme.dart';
 import '../settings/setup_preferences.dart';
@@ -56,32 +58,92 @@ class RunningScreen extends StatefulWidget {
   State<RunningScreen> createState() => _RunningScreenState();
 }
 
-class _RunningScreenState extends State<RunningScreen> {
-  /// Guards *both* exit paths (the Parent Controls sheet's End timer button
-  /// and the auto-pop-on-done post-frame callback) so at most one of them
-  /// ever calls `Navigator.pop()`. `build` (and therefore the auto-pop
-  /// check) re-runs on every [TimerController] notification while phase
-  /// stays [TimerPhase.done], and `mounted` alone does not become `false`
-  /// synchronously on `pop()` -- a sheet-driven exit can race an
-  /// already-scheduled auto-pop callback and both would otherwise fire.
+class _RunningScreenState extends State<RunningScreen>
+    with SingleTickerProviderStateMixin {
+  /// Guards the Parent Controls sheet's End timer button and the "All done"
+  /// pill's tap-to-return path so at most one exit ever calls
+  /// `Navigator.pop()`. `mounted` alone does not become `false`
+  /// synchronously on `pop()`, so a guard is still needed even though
+  /// [TimerPhase.done] no longer auto-pops (Pitfall 1, `04-RESEARCH.md`).
   bool _leftScreen = false;
 
+  /// The previously observed [TimerController.phase], used to detect the
+  /// edge into [TimerPhase.done] (Pattern 5, `04-RESEARCH.md`) rather than
+  /// firing on every rebuild while parked in `done`.
+  TimerPhase? _previousPhase;
+
+  /// Set once the completion chime has played for the current completion,
+  /// so it never replays on subsequent rebuilds while parked in `done`
+  /// (T-04-06).
+  bool _chimePlayed = false;
+
+  /// The synthesized completion chime bytes, computed once and reused for
+  /// every play() call.
+  late final Uint8List _chimeBytes = synthesizeChimeWav();
+
+  /// Drives the "All done" pill's breathing scale (CTRL-04): `scale 1 ->
+  /// 1.05 -> 1`, `2.8s`, ease-in-out, infinite -- the one
+  /// `AnimationController` outside `SceneRendererState` in this codebase,
+  /// since it is composition-root UI, not a scene decorative loop
+  /// (`04-UI-SPEC.md` Design System).
+  late final AnimationController _breatheController;
+  late final Animation<double> _breatheScale;
+
+  @override
+  void initState() {
+    super.initState();
+    // Started unconditionally here (rather than lazily on first build of
+    // the pill) since createTicker() must run while this State is still
+    // mounted/active -- deferring construction to a conditional getter risks
+    // first-touching it from dispose() on a controller that never reached
+    // done, which fails ("Looking up a deactivated widget's ancestor is
+    // unsafe"). Harmless to run continuously; the pill itself is only shown
+    // once done.
+    _breatheController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2800),
+    )..repeat(reverse: true);
+    _breatheScale = CurvedAnimation(
+      parent: _breatheController,
+      curve: Curves.easeInOut,
+    ).drive(Tween<double>(begin: 1.0, end: 1.05));
+  }
+
+  @override
+  void dispose() {
+    _breatheController.dispose();
+    super.dispose();
+  }
+
   /// Pops exactly once, regardless of which exit path (Parent Controls'
-  /// End timer or auto-pop-on-done) reaches it first.
+  /// End timer or the "All done" pill's tap) reaches it first.
   void _leaveOnce() {
     if (_leftScreen) return;
     _leftScreen = true;
     Navigator.of(context).pop();
   }
 
-  /// Auto-returns to Setup once the controller reaches [TimerPhase.done],
-  /// scheduled via a post-frame callback since navigating away is not safe
-  /// to do synchronously from inside `build`.
-  void _maybeAutoPopWhenDone(TimerPhase phase) {
-    if (phase != TimerPhase.done || _leftScreen) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _leaveOnce();
-    });
+  /// Reacts to the edge into [TimerPhase.done]: plays the completion chime
+  /// exactly once (unless muted), including on the first foreground reveal
+  /// if the app was backgrounded through done (D-07). Never replays on
+  /// subsequent rebuilds while parked in done (T-04-06).
+  void _maybeReactToPhaseChange(TimerPhase phase) {
+    final justCompleted =
+        phase == TimerPhase.done && _previousPhase != TimerPhase.done;
+    _previousPhase = phase;
+    if (justCompleted && !_chimePlayed) {
+      _chimePlayed = true;
+      if (widget.soundOn.value) {
+        unawaited(widget.chimePlayer.play(_chimeBytes));
+      }
+    }
+  }
+
+  /// Ends the timer and returns to Setup -- the only interactive affordance
+  /// once [TimerPhase.done] (D-09).
+  void _handlePillTap() {
+    context.read<TimerController>().endTimer();
+    _leaveOnce();
   }
 
   /// Opens the Parent Controls sheet (CTRL-01/CTRL-02), triggered by a
@@ -103,11 +165,56 @@ class _RunningScreenState extends State<RunningScreen> {
     );
   }
 
+  /// The "All done -- tap when ready" pill (CTRL-04): the only interactive
+  /// affordance once [TimerPhase.done] (D-09), breathing per
+  /// `04-UI-SPEC.md`'s Completion State Contract.
+  Widget _buildDonePill() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 56,
+      child: Center(
+        child: ScaleTransition(
+          scale: _breatheScale,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+              child: GestureDetector(
+                onTap: _handlePillTap,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 15,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTokens.pillSurface,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Text(
+                    'All done — tap when ready',
+                    style: TextStyle(
+                      fontFamily: AppTokens.fontQuicksand,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppTokens.ink,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<TimerController>();
-    _maybeAutoPopWhenDone(controller.phase);
-    final gestureEnabled = controller.phase != TimerPhase.done;
+    _maybeReactToPhaseChange(controller.phase);
+    final isDone = controller.phase == TimerPhase.done;
+    final gestureEnabled = !isDone;
 
     return Scaffold(
       backgroundColor: AppTokens.bg,
@@ -131,6 +238,7 @@ class _RunningScreenState extends State<RunningScreen> {
               child: sceneFor(widget.theme),
             ),
           ),
+          if (isDone) _buildDonePill(),
         ],
       ),
     );

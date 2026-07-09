@@ -346,27 +346,39 @@ void main() {
     // test/screens/running_screen_test.dart for CTRL-01/CTRL-02 coverage of
     // the new exit path (End timer button inside the sheet).
 
-    testWidgets('reaching TimerPhase.done auto-returns to Setup', (
-      WidgetTester tester,
-    ) async {
-      var now = DateTime(2026, 1, 1, 12, 0, 0);
-      final controller = TimerController(clock: () => now);
-      await tester.pumpWidget(_harness(controller));
+    testWidgets(
+      'reaching TimerPhase.done dwells on RunningScreen showing the "All '
+      'done" pill, and tapping it returns to Setup (CTRL-03/CTRL-04)',
+      (WidgetTester tester) async {
+        var now = DateTime(2026, 1, 1, 12, 0, 0);
+        final controller = TimerController(clock: () => now);
+        await tester.pumpWidget(_harness(controller));
 
-      await tester.tap(find.byKey(const ValueKey('start-button')));
-      await _pumpPastTransition(tester);
-      expect(find.byType(RunningScreen), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('start-button')));
+        await _pumpPastTransition(tester);
+        expect(find.byType(RunningScreen), findsOneWidget);
 
-      now = now.add(const Duration(minutes: 5, seconds: 1)); // default 5-min preset
-      controller.syncToWallClock();
-      await tester.pumpAndSettle();
+        now = now.add(const Duration(minutes: 5, seconds: 1)); // default 5-min preset
+        controller.syncToWallClock();
+        await tester.pump();
 
-      expect(controller.phase, TimerPhase.done);
-      expect(find.byType(SetupScreen), findsOneWidget);
-      expect(find.byType(RunningScreen), findsNothing);
+        // Completion no longer auto-pops (Pitfall 1, 04-RESEARCH.md): the
+        // screen dwells on the settled scene with the breathing pill.
+        expect(controller.phase, TimerPhase.done);
+        expect(find.byType(RunningScreen), findsOneWidget);
+        expect(find.text('All done — tap when ready'), findsOneWidget);
 
-      controller.dispose();
-    });
+        await tester.tap(find.text('All done — tap when ready'));
+        await _pumpPastTransition(tester);
+        await _pumpPastTransition(tester);
+
+        expect(controller.phase, TimerPhase.setup);
+        expect(find.byType(SetupScreen), findsOneWidget);
+        expect(find.byType(RunningScreen), findsNothing);
+
+        controller.dispose();
+      },
+    );
   });
 
   group('SetupScreen persistence (PERSIST-01)', () {
