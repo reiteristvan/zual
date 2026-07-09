@@ -14,6 +14,9 @@ const String _durationMinKey = 'durationMin';
 /// Key under which the last-used scene theme's [SceneTheme.name] is stored.
 const String _themeKey = 'theme';
 
+/// Key under which the parent's mute choice is stored.
+const String _soundOnKey = 'soundOn';
+
 /// Validating read/preset-only-write wrapper around `shared_preferences` for
 /// the two scalars PERSIST-01 remembers: last-used preset duration and
 /// last-used scene theme.
@@ -29,13 +32,21 @@ const String _themeKey = 'theme';
 /// already be in range or a valid enum name -- it is validated here on every
 /// read, not just checked at write time.
 class SetupPreferences {
-  const SetupPreferences({required this.durationMin, required this.theme});
+  const SetupPreferences({
+    required this.durationMin,
+    required this.theme,
+    this.soundOn = true,
+  });
 
   /// The last-used preset duration in minutes, always in `1..120`.
   final int durationMin;
 
   /// The last-used scene theme.
   final SceneTheme theme;
+
+  /// The parent's mute choice; defaults to `true` (unmuted) on first launch
+  /// (D-04).
+  final bool soundOn;
 
   /// Reads the persisted duration and theme, clamping/validating both so a
   /// corrupted or out-of-range stored value can never propagate into the
@@ -53,6 +64,10 @@ class SetupPreferences {
   /// launch (T-02-02) -- the whole point of validating on every read is
   /// that a tampered/corrupted store must never be trusted, including its
   /// type.
+  ///
+  /// `soundOn` follows the same validate-on-every-read shape (T-04-03): a
+  /// missing or wrong-typed stored value falls back to the D-04 default of
+  /// `true` (unmuted) rather than crashing launch.
   static Future<SetupPreferences> load() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -75,7 +90,14 @@ class SetupPreferences {
       theme = SceneTheme.disc;
     }
 
-    return SetupPreferences(durationMin: durationMin, theme: theme);
+    var soundOn = true;
+    try {
+      soundOn = prefs.getBool(_soundOnKey) ?? true;
+    } catch (_) {
+      soundOn = true;
+    }
+
+    return SetupPreferences(durationMin: durationMin, theme: theme, soundOn: soundOn);
   }
 
   /// Persists the current selection, but only ever writes a *preset*
@@ -97,5 +119,14 @@ class SetupPreferences {
     if (!showCustom) {
       await prefs.setInt(_durationMinKey, durationMin);
     }
+  }
+
+  /// Persists the parent's mute choice.
+  ///
+  /// Unlike [persistIfPreset]'s [showCustom] gating on `durationMin`, mute
+  /// has no preset/custom concept -- this always writes, unconditionally.
+  static Future<void> persistSoundOn(bool soundOn) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_soundOnKey, soundOn);
   }
 }
