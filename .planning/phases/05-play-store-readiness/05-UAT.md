@@ -1,14 +1,23 @@
 ---
-status: diagnosed
+status: testing
 phase: 05-play-store-readiness
 source: [05-VERIFICATION.md]
 started: 2026-07-10T13:15:00Z
-updated: 2026-07-10T15:10:00Z
+updated: 2026-07-10T15:55:27Z
 ---
 
 ## Current Test
 
-[testing complete]
+number: 3
+name: Re-confirm the reverted adaptive launcher icon on a real device launcher
+expected: |
+  Install the current signed release build (built from the post-05-06 config) on a real Android
+  device and view the launcher icon under both circle and squircle masks. The sun disc should read
+  as a clearly legible, balanced sunrise (sun within sky gradient and hill silhouette) — matching
+  the appearance already approved on the Samsung A25 in 05-05-SUMMARY.md, before the
+  since-reverted 260710-keg regression was ever introduced. It should NOT reproduce Test 1's
+  "just the sun with a yellow background" report.
+awaiting: user response
 
 ## Tests
 
@@ -29,12 +38,22 @@ expected: Open each of the 5 committed screenshots (screenshots/*.png) and confi
   their named scene.
 result: pass
 
+### 3. Re-confirm the reverted adaptive launcher icon on a real device launcher
+expected: |
+  Install the current signed release build (built from the post-05-06 config) on a real Android
+  device and view the launcher icon under both circle and squircle masks. The sun disc should read
+  as a clearly legible, balanced sunrise (sun within sky gradient and hill silhouette) — matching
+  the appearance already approved on the Samsung A25 in 05-05-SUMMARY.md, before the
+  since-reverted 260710-keg regression was ever introduced. It should NOT reproduce Test 1's
+  "just the sun with a yellow background" report.
+result: [pending]
+
 ## Summary
 
-total: 2
+total: 3
 passed: 1
 issues: 1
-pending: 0
+pending: 1
 skipped: 0
 blocked: 0
 
