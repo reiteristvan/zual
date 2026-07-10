@@ -44,7 +44,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Play Store Readiness
 
-- [ ] **PUBLISH-01**: App has a real `applicationId` and production signing config (not placeholder/debug)
+- [x] **PUBLISH-01**: App has a real `applicationId` and production signing config (not placeholder/debug)
 - [x] **PUBLISH-02**: App has Play Store listing assets (icon, screenshots) and a content-rating/target-audience declaration reviewed against Families Policy considerations
 
 ## v2 Requirements
@@ -100,7 +100,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-03 | Phase 4 | Complete |
 | CTRL-04 | Phase 4 | Complete |
 | PERSIST-01 | Phase 2 | Complete |
-| PUBLISH-01 | Phase 5 | Pending |
+| PUBLISH-01 | Phase 5 | Complete |
 | PUBLISH-02 | Phase 5 | Complete |
 
 **Coverage:**

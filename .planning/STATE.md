@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: play-store-readiness
 status: executing
-stopped_at: Completed 05-03-PLAN.md
-last_updated: "2026-07-10T08:37:52.693Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-07-10T08:39:46.171Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 05 execution started
 progress:
@@ -65,6 +65,7 @@ Progress: [████████████████████] 11/11 p
 | Phase 02-setup-screen P04 | 4min | 2 tasks | 6 files |
 | Phase 02 P05 | 15min | 2 tasks | 10 files |
 | Phase 05 P03 | 5min | 3 tasks | 2 files |
+| Phase 05 P01 | 25min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,7 @@ Recent decisions affecting current work:
 - [Phase 3/gap-closure 03-04]: Car wheel spin made visible via a single asymmetric spoke marking (reusing the two already-locked wheel colors #3A3230/#6B5E58) — deviates from the design source's rotationally-symmetric wheel, which was itself an invisible-spin defect (CR-01/Truth #8)
 - [Phase 3]: SceneRenderer's decorative loopPhase resets to 0 (rather than continuing) when its Ticker is stopped/restarted — latent, not reachable until Phase 4 wires Pause/Resume to the running screen (03-REVIEW.md WR-01)
 - [Phase 5]: GitHub Pages (main branch, /docs folder) chosen as the privacy-policy host for Play Console listing
+- [Phase 5]: storeFile in Gradle Kotlin DSL signingConfigs must resolve via rootProject.file(...), not the bare file(...) helper, when the keystore lives at the Gradle root (android/) rather than the :app module directory — file(...) resolves relative to the enclosing module's own directory; the checkpoint instructed the developer to generate the keystore at android/ (matching key.properties' own rootProject.file resolution), causing validateSigningRelease to fail until fixed
 
 ### Pending Todos
 
@@ -112,6 +114,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T08:36:18.128Z
-Stopped at: Completed 05-03-PLAN.md
+Last session: 2026-07-10T08:39:46.161Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
