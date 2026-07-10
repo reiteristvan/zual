@@ -75,7 +75,6 @@ flutter_launcher_icons:
   image_path: "assets/icon/icon_foreground.png"
   adaptive_icon_foreground: "assets/icon/icon_foreground.png"
   adaptive_icon_background: "assets/icon/icon_background.png"
-  adaptive_icon_foreground_inset: 0
 
 # The following section is specific to Flutter packages.
 flutter:
