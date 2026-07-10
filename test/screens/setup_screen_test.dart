@@ -381,6 +381,54 @@ void main() {
     );
   });
 
+  group('SetupScreen responsive layout', () {
+    testWidgets(
+      'fits the A25 viewport (~393x851 dp) without overflow or scrolling',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1080, 2340);
+        tester.view.devicePixelRatio = 2.75;
+        addTearDown(tester.view.reset);
+
+        final controller = TimerController(clock: () => DateTime(2026, 1, 1));
+        await tester.pumpWidget(_harness(controller));
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+
+        // The outer 'setup-scroll' SingleChildScrollView's own Scrollable is
+        // the first Scrollable found in its subtree; the two inner grids
+        // (GridView.count, shrinkWrap + NeverScrollableScrollPhysics) are
+        // also Scrollables, but nested deeper, so `.first` selects the
+        // outer one.
+        final scrollable = tester.state<ScrollableState>(
+          find
+              .descendant(
+                of: find.byKey(const ValueKey('setup-scroll')),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
+        expect(
+          scrollable.position.maxScrollExtent,
+          lessThanOrEqualTo(0.5),
+        );
+
+        expect(find.text('How long?'), findsOneWidget);
+        expect(find.text('Pick a scene'), findsOneWidget);
+        for (final label in [
+          'Shrinking disc',
+          'Night to sunrise',
+          'Walking home',
+          'Car on a road',
+        ]) {
+          expect(find.text(label), findsOneWidget);
+        }
+
+        controller.dispose();
+      },
+    );
+  });
+
   group('SetupScreen persistence (PERSIST-01)', () {
     testWidgets(
       'seeds the scene selection from initialTheme (no default->restored flash)',

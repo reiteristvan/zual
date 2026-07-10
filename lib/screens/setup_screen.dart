@@ -150,23 +150,59 @@ class _SetupScreenState extends State<SetupScreen> {
     return Scaffold(
       backgroundColor: AppTokens.bg,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final gap = (constraints.maxHeight * 0.03).clamp(12.0, 26.0);
-                  final durationAspectRatio = constraints.maxHeight >= 640
-                      ? 1.1
-                      : 1.2;
-                  final sceneAspectRatio = _computeSceneAspectRatio(
-                    context: context,
-                    availableHeight: constraints.maxHeight,
-                    gap: gap,
-                    durationAspectRatio: durationAspectRatio,
-                  );
-                  return SingleChildScrollView(
+        child: LayoutBuilder(
+          builder: (context, bodyConstraints) {
+            final contentWidth = MediaQuery.sizeOf(context).width - 44;
+            final footerHeight = _measureFooterHeight(context);
+
+            // Baseline header top padding per the design formula: scales
+            // down on short viewports (min 24, design default 52).
+            final baselineHeaderTop = (MediaQuery.sizeOf(context).height * 0.055)
+                .clamp(24.0, 52.0);
+            final baselineHeaderHeight = baselineHeaderTop + 8 + _headerContentHeight(context);
+            final baselineScrollRegionHeight =
+                bodyConstraints.maxHeight - baselineHeaderHeight - footerHeight;
+
+            final gap = (baselineScrollRegionHeight * 0.03).clamp(12.0, 26.0);
+            final durationAspectRatio = _computeDurationAspectRatio(
+              context: context,
+              availableHeight: baselineScrollRegionHeight,
+              contentWidth: contentWidth,
+            );
+            final sceneAspectRatio = _computeSceneAspectRatio(
+              context: context,
+              availableHeight: baselineScrollRegionHeight,
+              contentWidth: contentWidth,
+              gap: gap,
+              durationAspectRatio: durationAspectRatio,
+            );
+
+            // The scroll region's true required height given the ratios
+            // just chosen (which are themselves already capped so no card
+            // content overflows its cell). If this still exceeds what the
+            // baseline header leaves available -- which can happen once
+            // real font metrics are accounted for -- shrink the header
+            // further (down to a hard floor) rather than let the
+            // SingleChildScrollView safety net absorb an avoidable
+            // shortfall.
+            final requiredScrollRegionHeight = _requiredScrollRegionHeight(
+              context: context,
+              contentWidth: contentWidth,
+              gap: gap,
+              durationAspectRatio: durationAspectRatio,
+              sceneAspectRatio: sceneAspectRatio,
+            );
+            final shortfall =
+                requiredScrollRegionHeight - baselineScrollRegionHeight;
+            final headerTopPadding = shortfall > 0
+                ? (baselineHeaderTop - shortfall).clamp(16.0, 52.0)
+                : baselineHeaderTop;
+
+            return Column(
+              children: [
+                _buildHeader(headerTopPadding),
+                Expanded(
+                  child: SingleChildScrollView(
                     key: const ValueKey('setup-scroll'),
                     padding: const EdgeInsets.fromLTRB(22, 12, 22, 4),
                     child: Column(
@@ -184,26 +220,24 @@ class _SetupScreenState extends State<SetupScreen> {
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
-            _buildFooter(),
-          ],
+                  ),
+                ),
+                _buildFooter(),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
   /// Fixed header: wordmark + tagline, centered per UI-SPEC (`text-align:
-  /// center` in the Layout A reference markup). Top padding scales down on
-  /// short viewports (min 24, design default 52) to reclaim height for the
-  /// scroll region below.
-  Widget _buildHeader(BuildContext context) {
-    final topPadding = (MediaQuery.sizeOf(context).height * 0.055).clamp(
-      24.0,
-      52.0,
-    );
+  /// center` in the Layout A reference markup). [topPadding] scales down on
+  /// short viewports (min 24, design default 52, occasionally shrunk
+  /// further down to 16 when [build] finds the scroll region still short on
+  /// space after accounting for real font metrics) to reclaim height for
+  /// the scroll region below.
+  Widget _buildHeader(double topPadding) {
     return Padding(
       padding: EdgeInsets.fromLTRB(24, topPadding, 24, 8),
       child: const Column(
@@ -217,26 +251,87 @@ class _SetupScreenState extends State<SetupScreen> {
     );
   }
 
-  /// Computes a fit-to-space `childAspectRatio` for [SceneGrid] so the scene
-  /// picker consumes only the vertical space left over after the duration
-  /// grid, both section labels, the responsive gap, and (when shown) the
-  /// custom stepper row. Clamped to `[1.35, 2.4]`: 1.35 keeps scene cards no
-  /// taller than the design's default; 2.4 prevents ultra-flat cards on tiny
-  /// screens, where the `SingleChildScrollView` safety net then absorbs any
-  /// residual overflow.
-  double _computeSceneAspectRatio({
+  /// The header's own content height (wordmark + 4px gap + tagline),
+  /// excluding its padding -- used to predict the header's total footprint
+  /// before it is built, so [build] can decide whether to shrink its top
+  /// padding further. Measures the tagline with the header's real available
+  /// width (screen width minus its 24+24 horizontal padding): the tagline
+  /// string is wide enough to wrap to two lines on narrow screens, and an
+  /// unconstrained measurement would silently under-count that.
+  double _headerContentHeight(BuildContext context) {
+    final headerContentWidth = MediaQuery.sizeOf(context).width - 48;
+    return _measureTextHeight(
+          context,
+          'Zual',
+          AppTokens.wordmark,
+          maxWidth: headerContentWidth,
+        ) +
+        4 +
+        _measureTextHeight(
+          context,
+          'a gentle timer for little ones',
+          AppTokens.tagline,
+          maxWidth: headerContentWidth,
+        );
+  }
+
+  /// Estimates the footer's total height (padding + the Start button's own
+  /// padding + label row), used to predict how much vertical space remains
+  /// for the header + scroll region.
+  double _measureFooterHeight(BuildContext context) {
+    final labelHeight = _measureTextHeight(
+      context,
+      'Start',
+      AppTokens.startLabelStyle,
+    );
+    final suffixHeight = _measureTextHeight(
+      context,
+      '· 999 min',
+      AppTokens.startSuffix,
+    );
+    final rowHeight = labelHeight > suffixHeight ? labelHeight : suffixHeight;
+    // Padding.fromLTRB(22,14,22,26) vertical (14+26=40) + PressableSurface
+    // padding.all(20) vertical (40) + row content.
+    return 40 + 40 + rowHeight;
+  }
+
+  /// The scroll region's true required height for the given [gap],
+  /// [durationAspectRatio], and [sceneAspectRatio] -- i.e. the same
+  /// fixed-cost budget [_computeSceneAspectRatio] uses internally, plus the
+  /// scene grid's actual height at the ratio that was ultimately chosen.
+  double _requiredScrollRegionHeight({
     required BuildContext context,
-    required double availableHeight,
+    required double contentWidth,
+    required double gap,
+    required double durationAspectRatio,
+    required double sceneAspectRatio,
+  }) {
+    final fixedCost = _fixedCostAboveScene(
+      context: context,
+      contentWidth: contentWidth,
+      gap: gap,
+      durationAspectRatio: durationAspectRatio,
+    );
+    final sceneCellWidth = (contentWidth - 12) / 2;
+    final sceneGridHeight = 2 * (sceneCellWidth / sceneAspectRatio) + 12;
+    return fixedCost + sceneGridHeight;
+  }
+
+  /// The scroll region's fixed vertical cost above the scene grid: scroll
+  /// padding, both section labels, the duration grid, the responsive gap,
+  /// and (when shown) the custom stepper row.
+  double _fixedCostAboveScene({
+    required BuildContext context,
+    required double contentWidth,
     required double gap,
     required double durationAspectRatio,
   }) {
-    final contentWidth = MediaQuery.sizeOf(context).width - 44;
     final durationCellWidth = (contentWidth - 24) / 3;
     final durationGridHeight =
         2 * (durationCellWidth / durationAspectRatio) + 12;
 
     final sectionLabelHeight =
-        _measureTextHeight(context, AppTokens.sectionLabel) + 14;
+        _measureTextHeight(context, 'Hg', AppTokens.sectionLabel) + 14;
 
     var fixedCost =
         12 + // scroll padding top
@@ -248,24 +343,160 @@ class _SetupScreenState extends State<SetupScreen> {
     if (_showCustom) {
       fixedCost += _measureStepperRowHeight(context);
     }
+    return fixedCost;
+  }
+
+  /// The exact scene-card labels, mirrored from `SceneGrid._labels` (kept as
+  /// a duplicate literal list here rather than exposing new public API on
+  /// [SceneGrid], per this plan's directive not to touch its theme->label
+  /// mapping). Used only to measure the worst-case wrapped label height for
+  /// the fit-to-space scene aspect ratio below.
+  static const List<String> _sceneLabelsForMeasurement = [
+    'Shrinking disc',
+    'Night to sunrise',
+    'Walking home',
+    'Car on a road',
+  ];
+
+  /// Computes the "How long?" duration grid's `childAspectRatio`: the
+  /// design's height-based default (1.1 tall / 1.2 short), reduced further
+  /// only if the actual rendered cell content (worst case: the "Custom" /
+  /// "set your own" pair, which can wrap on narrow cells) would otherwise
+  /// overflow the cell. Uses real [TextPainter] measurement rather than a
+  /// guessed constant so this tracks the bundled fonts' real metrics and any
+  /// text wrap, on-device as well as in tests.
+  double _computeDurationAspectRatio({
+    required BuildContext context,
+    required double availableHeight,
+    required double contentWidth,
+  }) {
+    final baseRatio = availableHeight >= 640 ? 1.1 : 1.2;
+    final cellWidth = (contentWidth - 24) / 3;
+    final interiorWidth = cellWidth - 12; // horizontal padding 6 * 2
+    if (cellWidth <= 0 || interiorWidth <= 0) return baseRatio;
+
+    final presetHeight =
+        _measureTextHeight(
+          context,
+          '30',
+          AppTokens.presetNumber,
+          maxWidth: interiorWidth,
+        ) +
+        _measureTextHeight(
+          context,
+          'min',
+          AppTokens.presetUnit,
+          maxWidth: interiorWidth,
+        );
+    final customHeight =
+        _measureTextHeight(
+          context,
+          'Custom',
+          AppTokens.customLabel,
+          maxWidth: interiorWidth,
+        ) +
+        _measureTextHeight(
+          context,
+          'set your own',
+          AppTokens.customSublabel,
+          maxWidth: interiorWidth,
+        );
+    final contentHeight =
+        (presetHeight > customHeight ? presetHeight : customHeight) +
+        32; // vertical padding 16 * 2
+
+    if (contentHeight <= 0) return baseRatio;
+    final maxSafeRatio = cellWidth / contentHeight;
+    return baseRatio < maxSafeRatio ? baseRatio : maxSafeRatio;
+  }
+
+  /// Computes a fit-to-space `childAspectRatio` for [SceneGrid] so the scene
+  /// picker consumes only the vertical space left over after the duration
+  /// grid, both section labels, the responsive gap, and (when shown) the
+  /// custom stepper row. The design's preferred range is `[1.35, 2.4]` —
+  /// 1.35 keeps scene cards no taller than the design's default; 2.4
+  /// prevents ultra-flat cards on tiny screens, where the
+  /// `SingleChildScrollView` safety net then absorbs any residual overflow —
+  /// but the result is further capped so the actual rendered card content
+  /// (thumbnail + label, including any label line-wrap on narrow cells)
+  /// never overflows the cell, even if that means going below 1.35.
+  double _computeSceneAspectRatio({
+    required BuildContext context,
+    required double availableHeight,
+    required double contentWidth,
+    required double gap,
+    required double durationAspectRatio,
+  }) {
+    final fixedCost = _fixedCostAboveScene(
+      context: context,
+      contentWidth: contentWidth,
+      gap: gap,
+      durationAspectRatio: durationAspectRatio,
+    );
+
+    final sceneCellWidth = (contentWidth - 12) / 2;
+    final maxSafeSceneRatio = _maxSafeSceneAspectRatio(
+      context,
+      sceneCellWidth,
+    );
 
     final availableForScene = availableHeight - fixedCost;
     final perCellHeight = (availableForScene - 12) / 2;
-    if (perCellHeight <= 0) return 2.4;
+    final fitRatio = perCellHeight <= 0
+        ? 2.4
+        : (sceneCellWidth / perCellHeight).clamp(1.35, 2.4);
 
-    final sceneCellWidth = (contentWidth - 12) / 2;
-    return (sceneCellWidth / perCellHeight).clamp(1.35, 2.4);
+    return fitRatio > maxSafeSceneRatio ? maxSafeSceneRatio : fitRatio;
   }
 
-  /// Measures the rendered height of [style] using the current text
-  /// scaling, so the fit-to-space calculation above tracks real font metrics
-  /// instead of a guessed constant.
-  double _measureTextHeight(BuildContext context, TextStyle style) {
+  /// The largest `childAspectRatio` [sceneCellWidth] can use without the
+  /// tallest scene card's thumbnail + label content (label measured with
+  /// real wrapping at this cell's interior width) overflowing the cell.
+  double _maxSafeSceneAspectRatio(BuildContext context, double sceneCellWidth) {
+    final interiorWidth = sceneCellWidth - 20; // padding 10 * 2 (all sides)
+    if (sceneCellWidth <= 0 || interiorWidth <= 0) return 1.35;
+
+    var maxLabelHeight = 0.0;
+    for (final label in _sceneLabelsForMeasurement) {
+      final height = _measureTextHeight(
+        context,
+        label,
+        AppTokens.sceneCardLabel,
+        maxWidth: interiorWidth,
+      );
+      if (height > maxLabelHeight) maxLabelHeight = height;
+    }
+
+    // thumbnail (74) + gap (8) + label + padding (10 * 2).
+    final contentHeight = 74 + 8 + maxLabelHeight + 20;
+    if (contentHeight <= 0) return 1.35;
+    return sceneCellWidth / contentHeight;
+  }
+
+  /// Measures the rendered height of [text] in [style] using the current
+  /// text scaling (and, when [maxWidth] is given, the real line-wrap that
+  /// would occur at that width), so the fit-to-space calculations above
+  /// track real font metrics and wrapping instead of guessed constants.
+  ///
+  /// Merges [style] onto the ambient [DefaultTextStyle] first, exactly as
+  /// the real `Text` widget does internally — every `Text` in this screen
+  /// only sets a subset of `TextStyle` fields (fontFamily/size/weight/
+  /// color), so unset fields such as `height` are inherited from the
+  /// Material theme's default text style (Material 3 sets a non-1.0 height
+  /// multiplier). Measuring with the bare [style] alone under-counts the
+  /// real rendered line height and silently mispredicts wrapping.
+  double _measureTextHeight(
+    BuildContext context,
+    String text,
+    TextStyle style, {
+    double? maxWidth,
+  }) {
+    final effectiveStyle = DefaultTextStyle.of(context).style.merge(style);
     final painter = TextPainter(
-      text: TextSpan(text: 'Hg', style: style),
+      text: TextSpan(text: text, style: effectiveStyle),
       textDirection: TextDirection.ltr,
       textScaler: MediaQuery.textScalerOf(context),
-    )..layout();
+    )..layout(maxWidth: maxWidth ?? double.infinity);
     return painter.height;
   }
 
@@ -273,8 +504,8 @@ class _SetupScreenState extends State<SetupScreen> {
   /// padding + row), used only when `_showCustom` is true.
   double _measureStepperRowHeight(BuildContext context) {
     final textColumnHeight =
-        _measureTextHeight(context, AppTokens.stepperValue) +
-        _measureTextHeight(context, AppTokens.stepperUnit);
+        _measureTextHeight(context, '99', AppTokens.stepperValue) +
+        _measureTextHeight(context, 'minutes', AppTokens.stepperUnit);
     final rowHeight = textColumnHeight > 48 ? textColumnHeight : 48.0;
     return 14 + 28 + rowHeight; // margin-top(14) + padding(14+14) + row
   }
