@@ -94,3 +94,9 @@ None.
 None — no new network endpoints, auth paths, file access patterns, or trust-boundary schema
 changes were introduced. This plan only touches build-time icon-generation config and
 regenerated binary assets.
+
+## Self-Check: PASSED
+
+All claimed files and commits verified present on disk / in git history:
+- pubspec.yaml, android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml, store_assets/icon_512.png, 05-06-SUMMARY.md — FOUND
+- Commits 299b863, 4762de2 — FOUND
