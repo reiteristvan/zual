@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Setup Screen** - Parent configures duration + scene and launches the timer; last-used settings remembered (all plans executed; awaiting human UAT sign-off) (completed 2026-07-07)
 - [x] **Phase 3: Scene Themes** - Four full-screen wordless scenes driven by a shared progress value (completed 2026-07-07)
 - [x] **Phase 4: Parent Controls & Completion** - Hidden long-press controls, mute, calm chime, and finished state (completed 2026-07-09)
-- [ ] **Phase 5: Play Store Readiness** - Real app identity, signing, and store listing assets for publication
+- [x] **Phase 5: Play Store Readiness** - Real app identity, signing, and store listing assets for publication (completed 2026-07-10)
 
 ## Phase Details
 
@@ -166,7 +166,7 @@ Plans:
   3. A content-rating / target-audience declaration is completed and reviewed against Families Policy considerations.
   4. A release build installs and runs a full countdown on a real Android device.
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans complete
 **Mode:** mvp
 
 Plans:
@@ -182,7 +182,7 @@ Plans:
 
 **Wave 3** *(blocked on 05-01 + 05-04)*
 
-- [ ] 05-05-PLAN.md — Publishable build verification: signed release runs full countdown on real device + 4 full-bleed per-scene screenshots (PUBLISH-01, PUBLISH-02)
+- [x] 05-05-PLAN.md — Publishable build verification: signed release runs full countdown on real device + 4 full-bleed per-scene screenshots (PUBLISH-01, PUBLISH-02)
 
 ## Progress
 
@@ -195,4 +195,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
 | 3. Scene Themes | 4/4 | Complete    | 2026-07-07 |
 | 4. Parent Controls & Completion | 5/5 | Complete    | 2026-07-09 |
-| 5. Play Store Readiness | 4/5 | In Progress|  |
+| 5. Play Store Readiness | 5/5 | Complete   | 2026-07-10 |
