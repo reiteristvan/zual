@@ -166,7 +166,7 @@ Plans:
   3. A content-rating / target-audience declaration is completed and reviewed against Families Policy considerations.
   4. A release build installs and runs a full countdown on a real Android device.
 
-**Plans**: 6 plans (5 complete + 1 gap-closure)
+**Plans**: 6/6 plans complete
 **Mode:** mvp
 
 Plans:
@@ -186,7 +186,7 @@ Plans:
 
 **Gap closure** *(from 05-UAT.md Test 1)*
 
-- [ ] 05-06-PLAN.md — Revert launcher-icon inset override (adaptive_icon_foreground_inset: 0 → tool default 16%) + regenerate launcher assets and store icon_512.png (PUBLISH-02)
+- [x] 05-06-PLAN.md — Revert launcher-icon inset override (adaptive_icon_foreground_inset: 0 → tool default 16%) + regenerate launcher assets and store icon_512.png (PUBLISH-02)
 
 ## Progress
 
@@ -199,4 +199,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
 | 3. Scene Themes | 4/4 | Complete    | 2026-07-07 |
 | 4. Parent Controls & Completion | 5/5 | Complete    | 2026-07-09 |
-| 5. Play Store Readiness | 5/5 | Complete   | 2026-07-10 |
+| 5. Play Store Readiness | 6/6 | Complete   | 2026-07-10 |
