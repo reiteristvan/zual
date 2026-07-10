@@ -166,7 +166,7 @@ Plans:
   3. A content-rating / target-audience declaration is completed and reviewed against Families Policy considerations.
   4. A release build installs and runs a full countdown on a real Android device.
 
-**Plans**: 5/5 plans complete
+**Plans**: 6 plans (5 complete + 1 gap-closure)
 **Mode:** mvp
 
 Plans:
@@ -183,6 +183,10 @@ Plans:
 **Wave 3** *(blocked on 05-01 + 05-04)*
 
 - [x] 05-05-PLAN.md — Publishable build verification: signed release runs full countdown on real device + 4 full-bleed per-scene screenshots (PUBLISH-01, PUBLISH-02)
+
+**Gap closure** *(from 05-UAT.md Test 1)*
+
+- [ ] 05-06-PLAN.md — Revert launcher-icon inset override (adaptive_icon_foreground_inset: 0 → tool default 16%) + regenerate launcher assets and store icon_512.png (PUBLISH-02)
 
 ## Progress
 
