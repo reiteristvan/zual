@@ -45,7 +45,11 @@ android {
             if (keystorePropertiesFile.exists()) {
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+                // rootProject.file(...) (not file(...)) — the keystore lives alongside
+                // key.properties at android/, not inside the :app module directory that
+                // file() would resolve against; a plain file() call fails
+                // validateSigningRelease with "Keystore file ... not found" (Rule 1 fix).
+                storeFile = keystoreProperties["storeFile"]?.let { rootProject.file(it) }
                 storePassword = keystoreProperties["storePassword"] as String
             }
         }
