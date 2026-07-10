@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zual/scenes/sunrise/sunrise_painter.dart';
 
+import 'icon_painters.dart';
 import 'icon_renderer.dart';
 
 /// Spike test (05-02-PLAN.md Task 1): proves the headless
@@ -41,6 +42,39 @@ void main() {
         final readBack = await file.readAsBytes();
         expect(readBack.length, greaterThan(1000));
         expect(readBack.sublist(0, 8), equals(pngSignature));
+      });
+    },
+  );
+
+  testWidgets(
+    'renders and writes the launcher icon foreground and background '
+    'source PNGs (05-04-PLAN.md Task 1)',
+    (tester) async {
+      await tester.runAsync(() async {
+        const size = Size(1024, 1024);
+
+        final backgroundBytes = await renderPainterToPng(
+          const IconBackgroundPainter(),
+          size,
+        );
+        final foregroundBytes = await renderPainterToPng(
+          const IconForegroundPainter(),
+          size,
+        );
+
+        final backgroundFile = File('assets/icon/icon_background.png');
+        final foregroundFile = File('assets/icon/icon_foreground.png');
+        await backgroundFile.create(recursive: true);
+        await foregroundFile.create(recursive: true);
+        await backgroundFile.writeAsBytes(backgroundBytes);
+        await foregroundFile.writeAsBytes(foregroundBytes);
+
+        for (final file in [backgroundFile, foregroundFile]) {
+          expect(file.existsSync(), isTrue);
+          final bytes = await file.readAsBytes();
+          expect(bytes.length, greaterThan(1000));
+          expect(bytes.sublist(0, 8), equals(pngSignature));
+        }
       });
     },
   );
