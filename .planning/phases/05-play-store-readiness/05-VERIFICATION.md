@@ -1,111 +1,139 @@
 ---
 phase: 05-play-store-readiness
-verified: 2026-07-10T13:12:33Z
+verified: 2026-07-10T15:55:27Z
 status: human_needed
-score: 4/4 roadmap truths verified (2 items flagged for human re-confirmation)
+score: 4/4 roadmap truths verified, 4/4 gap-closure (05-06) truths verified at code level (1 of those 4 remains visual/human-judgment)
 behavior_unverified: 0
 overrides_applied: 0
+re_verification:
+  previous_status: human_needed
+  previous_score: 4/4 roadmap truths verified (2 items flagged for human re-confirmation)
+  gaps_closed:
+    - "UAT Test 1 gap (major): 05-06 removed `adaptive_icon_foreground_inset: 0` from pubspec.yaml, restoring the flutter_launcher_icons tool default of 16%. ic_launcher.xml now declares android:inset=\"16%\" (confirmed via direct read), exactly reverting to the byte-identical pre-260710-keg config that was on-device-verified acceptable on a real Samsung A25 in 05-05-SUMMARY.md."
+    - "UAT Test 2 (screenshot quality pass): reported result: pass in 05-UAT.md — no code action was required, already satisfied."
+  gaps_remaining: []
+  regressions: []
 human_verification:
-  - test: "Visually confirm the corrected adaptive launcher icon (adaptive_icon_foreground_inset: 0, sun disc at its intended ~64% diameter) on a real device launcher, under both circle and squircle icon masks."
-    expected: "The sun disc reads as a clearly legible, appropriately-sized shape at 48dp — not the shrunken ~43%-diameter version that WR-01 identified and that the developer's original 05-05 on-device checkpoint approval was based on."
-    why_human: "The 05-05 on-device checkpoint (Samsung A25) that confirmed 'the real icon appears' was performed BEFORE code review found WR-01 (double safe-zone inset shrinking the visible sun disc from ~64% to ~43% diameter). The WR-01 fix (quick task 260710-keg) was verified only by config/XML grep + `flutter build apk --debug`, not by a fresh on-device visual look. No human has yet looked at the corrected icon on a real launcher."
-  - test: "Review the 5 committed screenshots (screenshots/*.png) for final Play Store listing suitability — confirm each is full-bleed with no unwanted device-frame graphic, and is representative of its scene."
-    expected: "Each PNG shows only the raw captured app screen (OS status bar + gesture-nav indicator are expected/normal for a full-bleed capture, not a 'device frame' in the marketing-mockup sense) with no added caption text, and clearly represents its named scene at a good progress point."
-    why_human: "Visual representativeness and 'full-bleed, no frame' compliance is inherently a judgment call (both 05-04-SUMMARY and 05-05-SUMMARY explicitly flag their icon/screenshot deliverables as `human_judgment: true`). This verifier's own visual inspection of shrinking_disc.png and night_to_sunrise.png did not find an added marketing frame (the rounded corners/status bar/home-indicator are the raw device screen, consistent with `adb screencap`), but a final human pass before Play Console upload is still warranted."
+  - test: "Install the current signed release build (post-05-06 revert) on a real Android device and look at the launcher icon under both circle and squircle masks."
+    expected: "The sun disc reads as a clearly legible, appropriately-sized shape at 48dp (the balanced sunrise), not the near-edge-to-edge flat-yellow rendering UAT Test 1 reported against the since-reverted 0%-inset config."
+    why_human: "This is the exact class of truth (visual appearance under Android's OS-level adaptive-icon mask crop) that grep/build checks cannot see, and is the same category of miss that let the original regression ship in the first place (05-REVIEW.md's own retrospective: the 260710-keg 'fix' was verified only by config-level grep + a debug build, not a human look, and that is precisely why it reached UAT before being caught). The 05-06 revert is a byte-identical restoration of the exact config (android:inset=\"16%\", unchanged icon_foreground.png/icon_background.png source PNGs) that was already human-verified acceptable on a physical Samsung A25 in 05-05-SUMMARY.md — so a PASS is expected — but no automated check in this repo can render Android's adaptive-icon mask crop, so a fresh on-device look is still the only way to close this out with certainty rather than by inference."
 ---
 
-# Phase 5: Play Store Readiness Verification Report
+# Phase 5: Play Store Readiness Verification Report (Re-verification after 05-06 gap closure)
 
 **Phase Goal:** The app is a publishable Android build with real identity, production signing, and store listing assets reviewed against Families Policy considerations.
-**Verified:** 2026-07-10T13:12:33Z
+**Verified:** 2026-07-10T15:55:27Z
 **Status:** human_needed
-**Re-verification:** No — initial verification
+**Re-verification:** Yes — after 05-06 gap-closure plan execution (closing 05-UAT.md Test 1's major regression)
 
-**Process note:** ROADMAP.md marks this phase `Mode: mvp`, but the phase Goal is written in the standard "what must be true" form, not the `As a ___, I want to ___, so that ___.` User Story format (confirmed via `user-story.validate` → `valid: false`). All five plans in this phase share the same non-User-Story goal convention, so this is a pre-existing roadmap-authoring pattern for the whole project, not specific to this phase. Rather than refusing to verify, this report proceeds with the standard goal-backward methodology against the roadmap's own Success Criteria (which is what the phase was actually planned, executed, and reviewed against).
+## Context
+
+The prior automated verification (05-VERIFICATION.md, 2026-07-10T13:12:33Z) passed all 4 roadmap
+Success Criteria at the code level but flagged the launcher icon for one more human look before
+Play Console submission, since the WR-01 "fix" (`adaptive_icon_foreground_inset: 0`) had only ever
+been verified by config grep + a debug build, never a real device. Human UAT (05-UAT.md) then
+caught exactly what that flag anticipated: the icon rendered as a near-edge-to-edge sun on a flat
+yellow field. A debug diagnosis (05-DIAGNOSIS via UAT root_cause) found the actual mechanism —
+Android's adaptive-icon system crops every layer to a ~66.7% safe-zone viewport independently of
+the app-level inset, so the two insets stack. The 260710-keg fix removed the tool's own 16% inset
+entirely, which overcorrected: with no app-level inset, the sun (already 64% of the full canvas)
+exceeded the 66% safe zone and filled ~96% of the visible viewport.
+
+Plan 05-06 reverted this: it removed the `adaptive_icon_foreground_inset: 0` line entirely
+(restoring the tool's own default of 16), regenerated `ic_launcher.xml`, and regenerated the
+512x512 store-listing icon. This report independently re-verifies that revert and re-confirms the
+phase's other three roadmap Success Criteria were not disturbed by the icon-only change.
 
 ## Goal Achievement
 
 ### Observable Truths
 
-| # | Truth (Roadmap Success Criterion) | Status | Evidence |
+| # | Truth | Status | Evidence |
 |---|---|---|---|
-| 1 | The app has a real `applicationId` and a production signing config (no debug/placeholder). | VERIFIED | `android/app/build.gradle.kts`: `applicationId = "com.ireiter.zual"` (not `com.example.zual`); `signingConfigs.create("release")` reads `key.properties` via `rootProject.file(...)`; `buildTypes.release.signingConfig` uses it whenever `key.properties` exists. Built `build/app/outputs/bundle/release/app-release.aab` and ran `keytool -printcert -jarfile ...` live during this verification: `Owner: CN=Istvan, OU=Reiter, O=Reiter, L=Szerencs, ST=Borsod, C=HU` — a real upload certificate, NOT `CN=Android Debug, O=Android`. `android/key.properties` and `android/upload-keystore.jks` exist on disk but `git status --porcelain` and `git ls-files` both confirm they are untracked. |
-| 2 | Play Store listing assets (app icon, screenshots) are prepared. | VERIFIED | Adaptive icon: `assets/icon/icon_foreground.png` + `icon_background.png` (generated, checked into git), `pubspec.yaml` `flutter_launcher_icons:` config (PNG-path gradient background, `adaptive_icon_foreground_inset: 0` after WR-01 fix), `android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` confirmed on disk with `android:inset="0%"` (not the buggy `16%`). Hi-res store icon `store_assets/icon_512.png` exists (104KB, flattened composite). Screenshots: `screenshots/` contains `shrinking_disc.png`, `night_to_sunrise.png`, `walking_home.png`, `car_on_a_road.png` (one per required scene) plus a bonus `setup_screen.png`. Ran `flutter test test/tool/generate_launcher_icon_test.dart test/tool/generate_store_icon_test.dart` live — all 3 tests pass. |
-| 3 | A content-rating / target-audience declaration is completed and reviewed against Families Policy considerations. | VERIFIED | `.planning/phases/05-play-store-readiness/05-STORE-LISTING.md` exists and contains: exact display name "Zual — Visual Timer for Kids"; target-audience declaration ("general audience that also appeals to children," explicitly NOT "Designed for Families") with rationale; an IARC content-rating answer table pointing entirely to the Everyone/lowest tier; the privacy-policy URL; short + full store descriptions. Privacy policy `docs/index.html` (read in full) truthfully states no accounts, no data collection, no ads, offline operation, a children's-privacy section, and a contact email. Ran `curl -sI https://reiteristvan.github.io/zual/` live — `HTTP/1.1 200 OK`, confirming the privacy policy is live and reachable, backing the declaration. STATE.md's "must re-verify at submission" note is consistent with the phase's own scope (a *prepared, reviewed* draft — not a Play-Console-submitted final declaration — matching the roadmap wording "completed and reviewed," not "submitted and confirmed by Google"). |
-| 4 | A release build installs and runs a full countdown on a real Android device. | VERIFIED | `05-05-SUMMARY.md` records a `checkpoint:human-verify` gate (Task 1) that the developer approved after installing the signed release build on a physical Samsung A25, confirming the real adaptive icon and a full countdown to the "All done" finished state with no crash. This is not a bare narrative claim: during that exact on-device session the developer discovered a real, device-specific Setup-screen layout overflow bug (fixed as quick task `260710-frr`, commits `a95f594`/`888796a`, git history confirmed present), which strongly corroborates genuine hands-on real-device testing rather than a fabricated checkpoint — a scripted/staged claim would not plausibly surface an A25-specific ~1cm viewport overflow. The developer re-verified on the physical device after the fix before proceeding. |
+| 1 (Roadmap SC1) | The app has a real `applicationId` and a production signing config (no debug/placeholder). | VERIFIED (regression check) | `android/app/build.gradle.kts` still shows `applicationId = "com.ireiter.zual"` and the guarded `signingConfigs.create("release")` reading `key.properties`. `git diff` since the prior VERIFICATION shows only `pubspec.yaml`, `ic_launcher.xml`, and doc/planning files changed — `build.gradle.kts` was not touched by 05-06. No regression. |
+| 2 (Roadmap SC2) | Play Store listing assets (app icon, screenshots) are prepared. | VERIFIED | `store_assets/icon_512.png` regenerated by 05-06 Task 2 — reran `flutter test test/tool/generate_store_icon_test.dart` independently in this verification session: **1 test, all passed**. File md5 (`eb29d10e29ee324b26a2e2f55aa7e709`) is unchanged from the pre-05-06 committed version, as the plan predicted (the compositor doesn't consult the adaptive-icon inset). Viewed the composited PNG directly — a clean, full sunrise composite. Screenshots (`screenshots/*.png`, 5 files) untouched by 05-06; UAT Test 2 ("Final screenshot quality pass") already reported `result: pass`. |
+| 3 (Roadmap SC3) | A content-rating / target-audience declaration is completed and reviewed against Families Policy considerations. | VERIFIED (regression check) | `.planning/phases/05-play-store-readiness/05-STORE-LISTING.md` and `docs/index.html` were not in 05-06's `files_modified` list and are unaffected by an icon-only change. Not re-touched. |
+| 4 (Roadmap SC4) | A release build installs and runs a full countdown on a real Android device. | VERIFIED (regression check) | This was human-confirmed on a physical Samsung A25 in 05-05-SUMMARY.md, which occurred *before* the 260710-keg regression was ever introduced — so that on-device install/countdown proof used the same 16%-inset icon config 05-06 has now restored. Unaffected by the icon regression/fix cycle. |
+| 5 (05-06 must-have) | `ic_launcher.xml` declares `android:inset="16%"` (the tool default), matching the on-device-verified pre-260710-keg state. | VERIFIED | Read `android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` directly in this session: `android:inset="16%"`. `git show 299b863` confirms the only diff to this file is `-android:inset="0%"` / `+android:inset="16%"`. |
+| 6 (05-06 must-have) | `pubspec.yaml`'s `flutter_launcher_icons` block no longer contains `adaptive_icon_foreground_inset`. | VERIFIED | Read `pubspec.yaml` directly: the block now ends at `adaptive_icon_background` with no inset key. `git show 299b863 -- pubspec.yaml` confirms the single-line removal, no other key touched. |
+| 7 (05-06 must-have) | The debug APK still builds successfully with the reverted icon config. | VERIFIED | Ran `flutter build apk --debug` independently in this verification session (not trusting SUMMARY's claim) — exited 0, produced `build/app/outputs/flutter-apk/app-debug.apk`. |
+| 8 (05-06 must-have / UAT Test 1) | The launcher icon renders the sunrise scene (sun disc balanced within sky gradient and hill silhouette), not a near-edge-to-edge sun on a flat yellow field. | ⚠️ Present, code-verified, visual outcome unconfirmed | The config change is an exact, byte-identical revert to the state already human-verified acceptable on a real Samsung A25 (05-05-SUMMARY.md, before the regression existed). Source PNGs (`assets/icon/icon_foreground.png`, `icon_background.png`) are unchanged. This is strong supporting evidence the visual regression is fixed, but rendering under Android's adaptive-icon mask crop is inherently something only a real device/launcher can confirm — routed to Human Verification below rather than marked VERIFIED on inference alone. |
 
-**Score:** 4/4 truths verified (0 present-but-behavior-unverified). 2 additional items flagged below for human re-confirmation before Play Console submission (see Human Verification Required) — these do not fail any of the 4 truths above but do affect final launch readiness.
+**Score:** 7/8 truths verified at the code level (0 present-but-behavior-unverified in the state-transition/invariant sense — the one open item is a visual/human-judgment truth, the correct verification category for it per Step 8). All 4 roadmap Success Criteria hold with no regressions from the 05-06 change.
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `android/app/build.gradle.kts` | Real applicationId + release signingConfig | VERIFIED | Read live: `applicationId = "com.ireiter.zual"`, guarded `key.properties` load, `signingConfigs.create("release")`, conditional release signing. Namespace intentionally left as `com.example.zual` (documented, low-risk per RESEARCH Pitfall 1). |
-| `android/app/src/main/AndroidManifest.xml` | Real launcher label | VERIFIED | `android:label="Zual"` confirmed. |
-| `pubspec.yaml` | Real description/version + icon config | VERIFIED | Description no longer scaffold default; `flutter_launcher_icons:` block present with corrected `adaptive_icon_foreground_inset: 0`. |
-| `android/key.properties`, `android/upload-keystore.jks` | Developer-created, gitignored | VERIFIED | Exist on disk (`ls android/`), confirmed untracked (`git status --porcelain` empty, `git ls-files | grep` empty). |
-| `docs/index.html` | Static privacy policy page | VERIFIED | Exists, truthful content confirmed by direct read; live at `https://reiteristvan.github.io/zual/` (curl 200 OK, checked live). |
-| `.planning/phases/05-play-store-readiness/05-STORE-LISTING.md` | Play Console answer sheet | VERIFIED | Exists with all required fields (display name, target audience, IARC answers, privacy URL, descriptions). |
-| `test/tool/icon_renderer.dart` | Reusable headless PNG render helper | VERIFIED | Exists, painter-agnostic, exercised by passing tests. |
-| `test/tool/icon_painters.dart` | Icon foreground/background painters | VERIFIED | `IconBackgroundPainter` (gradient), `IconForegroundPainter` (padded sun disc) present. |
-| `assets/icon/icon_foreground.png`, `icon_background.png` | Generated 1024x1024 icon sources | VERIFIED | Both exist (326KB / 19.7KB), committed. |
-| `android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` | Adaptive icon descriptor | VERIFIED | Exists, `android:inset="0%"` (post-WR-01-fix), references foreground/background drawables. |
-| `store_assets/icon_512.png` | Hi-res Play Console store icon | VERIFIED | Exists (104KB), additive asset from quick task 260710-keg — not required by any plan's must_haves but satisfies the Play Console "Hi-res icon" upload field. |
-| `screenshots/*.png` | 4 full-bleed per-scene screenshots | VERIFIED | 4 required scenes present + 1 bonus (`setup_screen.png`). Visual full-bleed/no-frame quality flagged for human re-confirmation (see Human Verification). |
-| `build/app/outputs/bundle/release/app-release.aab` | Signed release bundle | VERIFIED | Exists (46.3MB), signing certificate confirmed live via `keytool` during this verification. |
+| `pubspec.yaml` | No `adaptive_icon_foreground_inset` key | VERIFIED | Confirmed via direct read; `git show 299b863` confirms exactly one line removed, nothing else touched. |
+| `android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` | `android:inset="16%"` | VERIFIED | Confirmed via direct read. |
+| `android/app/src/main/res/mipmap-*/ic_launcher.png` (5 legacy fallbacks) | Unchanged (tool composites these without applying inset) | VERIFIED | `git status --porcelain` is clean — no unstaged changes; these files were not part of commit `299b863`, consistent with the plan/summary's prediction that they'd come out byte-identical. |
+| `store_assets/icon_512.png` | Regenerated, valid 512x512 RGBA PNG | VERIFIED | Re-ran the generating test independently: 1/1 pass. md5 unchanged from pre-05-06. Viewed image directly — valid sunrise composite. |
+| `build/app/outputs/flutter-apk/app-debug.apk` | Debug APK builds with reverted config | VERIFIED | Built independently in this session (`flutter build apk --debug`, exit 0). |
+| `android/app/build.gradle.kts`, `.planning/phases/05-play-store-readiness/05-STORE-LISTING.md`, `docs/index.html` | Unaffected by 05-06 (out of its `files_modified` scope) | VERIFIED (regression check) | Confirmed not present in `git diff 299b863`'s changed-file list; content re-spot-checked (applicationId still real). |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |---|---|---|---|---|
-| `build.gradle.kts` release buildType | `signingConfigs.getByName("release")` | conditional on `key.properties.exists()` | WIRED | Source-confirmed; live build produced a real-certificate `.aab`. |
-| `signingConfigs.release` | `key.properties` / `upload-keystore.jks` | `rootProject.file(...)` | WIRED | Path-resolution bug (originally `file(...)`) was found and fixed during 05-01 execution; current code uses `rootProject.file`, confirmed correct by a live successful build + keytool check. |
-| `pubspec.yaml` `flutter_launcher_icons` config | `assets/icon/*.png` → `android/.../mipmap-anydpi-v26/ic_launcher.xml` + legacy mipmaps | `dart run flutter_launcher_icons` | WIRED | Config PNG paths confirmed to exist; generated XML confirmed to reference the foreground/background drawables with the corrected 0% inset. |
-| `docs/index.html` | GitHub Pages | branch `main`, folder `/docs` | WIRED | `curl -sI https://reiteristvan.github.io/zual/` → `200 OK` (checked live in this verification). |
-| `05-STORE-LISTING.md` privacy URL | `docs/index.html` content | URL reference | WIRED | URL in the answer sheet matches the live Pages URL and the served content. |
-| Signed `.aab`/`.apk` + adaptive icon | Real device install + launcher | on-device checkpoint | WIRED (human-confirmed) | 05-05-SUMMARY.md records developer approval on a physical Samsung A25; corroborated by an interleaved device-specific bug discovery/fix. |
+| `pubspec.yaml` `flutter_launcher_icons` config (no inset override) | `android/.../ic_launcher.xml` | `dart run flutter_launcher_icons` regeneration | WIRED | `git show 299b863` shows both files changed together in the same commit, consistent with a single tool run; the XML's inset value (16%) now matches the absence of an override key in pubspec.yaml (tool default). |
+| Reverted icon config | Full test suite / build pipeline | `flutter test`, `flutter build apk --debug` | WIRED | Both re-run independently in this session: 133/133 tests pass, debug build exits 0. |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan(s) | Description | Status | Evidence |
 |---|---|---|---|---|
-| PUBLISH-01 | 05-01, 05-05 | Real applicationId + production signing config | SATISFIED | Verified applicationId, signing config, signed .aab certificate, and on-device install/countdown proof. |
-| PUBLISH-02 | 05-02, 05-03, 05-04, 05-05 | Store listing assets (icon, screenshots), content-rating/target-audience declaration reviewed against Families Policy | SATISFIED | Verified privacy policy, store listing answer sheet, generated adaptive icon (with WR-01 fix applied), 4+1 screenshots. |
+| PUBLISH-01 | 05-01, 05-05 | Real applicationId + production signing config | SATISFIED | Unaffected by 05-06; re-confirmed no regression this session. |
+| PUBLISH-02 | 05-02, 05-03, 05-04, 05-05, 05-06 | Store listing assets (icon, screenshots), content-rating/target-audience declaration reviewed against Families Policy | SATISFIED (icon config regression closed; final visual confirmation pending) | Icon config regression (WR-01 overcorrection) reverted and independently re-verified at the code/build/test level in this session. Visual on-device confirmation is the one remaining open item — see Human Verification. |
 
-REQUIREMENTS.md cross-check: both PUBLISH-01 and PUBLISH-02 are listed under "Play Store Readiness" (checked `[x]`) and appear in the Traceability table mapped to "Phase 5 / Complete." No orphaned Phase-5 requirement IDs exist in REQUIREMENTS.md beyond these two. Coverage summary states 22/22 v1 requirements mapped, 0 unmapped.
+REQUIREMENTS.md cross-check (re-confirmed): PUBLISH-01 and PUBLISH-02 both listed under "Play Store
+Readiness" (`[x]`), both appear in the Traceability table mapped to "Phase 5 / Complete", 22/22 v1
+requirements mapped, 0 unmapped, no orphaned Phase-5 IDs. 05-06-PLAN's `requirements: [PUBLISH-02]`
+frontmatter is consistent with this — it's a gap-closure plan against the same requirement 05-02/
+05-03/05-04/05-05 already covered, not a new requirement.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |---|---|---|---|---|
-| `test/tool/generate_launcher_icon_test.dart` | 49-80 | A `*_test.dart` file unconditionally overwrites tracked, committed binary assets (`assets/icon/*.png`) every time `flutter test` runs, asserting only generic PNG-validity, not a content diff against the committed bytes | Warning (carried over from 05-REVIEW.md WR-02, still unresolved) | Currently a no-op (rendering is deterministic today) but a future Skia/Impeller engine change could silently rewrite the shipped icon with no test failure to catch it |
-| `test/tool/icon_renderer.dart` | 21-29 | `ui.Image` from `picture.toImage(...)` is never `.dispose()`d | Info (carried over from 05-REVIEW.md IN-02, still unresolved) | Low real-world impact (dev/test-only script), but a native-memory correctness gap |
-| `android/app/build.gradle.kts` | 11-15 | `FileInputStream(keystorePropertiesFile)` opened via `keystoreProperties.load(...)` is never closed | Warning (carried over from 05-REVIEW.md WR-03, still unresolved) | Small resource leak, runs once per Gradle configuration pass |
-| `android/app/build.gradle.kts` | 58-69 | Release build type silently falls back to debug signing with no build-time gate/warning when `key.properties` is absent | Warning (carried over from 05-REVIEW.md WR-04, still unresolved) | Could allow an accidental debug-signed release build to be produced for upload with no warning |
+| (carried forward, unchanged) `android/app/build.gradle.kts` | 11-15, 58-69 | Unclosed `FileInputStream`; silent debug-signing fallback with no build-time warning | Warning (05-REVIEW.md WR-03/WR-04, still open) | Not touched by 05-06; pre-existing, non-blocking. |
+| (carried forward, unchanged) `test/tool/generate_launcher_icon_test.dart` | 49-80 | Test unconditionally overwrites committed binary assets each run, asserting only generic PNG validity | Warning (05-REVIEW.md WR-02, still open) | Not touched by 05-06; pre-existing, non-blocking. |
 
-None of the above are debt markers (`TBD`/`FIXME`/`XXX`) — a direct grep across all phase-modified files found zero matches. These are Warning/Info-tier code-quality findings already surfaced by `05-REVIEW.md` (only WR-01 was fixed via quick task `260710-keg`; WR-02 through WR-06 remain open). None of them block the phase's goal — the app is genuinely real-identity, production-signed, and has reviewed listing assets — but they represent legitimate follow-up hardening work.
+No `TBD`/`FIXME`/`XXX` debt markers found in `pubspec.yaml` or `ic_launcher.xml` (the two files
+05-06 modified) — direct grep confirmed none. 05-REVIEW.md's own retrospective on this incident
+(quoted in its "Warning" section) explicitly recommends adding a cross-referencing comment or a
+golden-image regression test so a future edit to either the sun radius or the inset value fails a
+test instead of requiring a physical device to catch it — this remains an open, non-blocking
+hardening recommendation, not part of 05-06's scope.
 
 ### Human Verification Required
 
-### 1. Re-confirm the corrected adaptive icon on a real device launcher
+### 1. Re-confirm the reverted adaptive launcher icon on a real device launcher
 
-**Test:** Install the current signed release build (post `260710-keg` fix) on a real Android device and look at the launcher icon under both circle and squircle masks.
-**Expected:** The sun disc reads as a clearly legible, appropriately-sized shape at 48dp (the intended ~64% diameter), not the shrunken ~43%-diameter rendering that `05-REVIEW.md` WR-01 identified.
-**Why human:** The only on-device visual confirmation on record (`05-05-SUMMARY.md` Task 1, Samsung A25) happened *before* code review discovered the double safe-zone inset bug. The fix (`adaptive_icon_foreground_inset: 0`) was verified only by XML/config inspection and a debug build — not by a fresh human look at the corrected icon on a real launcher.
-
-### 2. Final screenshot quality pass before Play Console upload
-
-**Test:** Open each of the 5 committed screenshots (`screenshots/*.png`) and confirm they are full-bleed (no added marketing device-frame graphic — the OS status bar and gesture-nav indicator visible in the raw capture are expected and normal), free of any caption overlay, and representative of their named scene.
-**Expected:** All 5 images read as clean, representative, full-bleed captures suitable for a Play Store listing.
-**Why human:** Both `05-04-SUMMARY.md` and `05-05-SUMMARY.md` explicitly flag icon/screenshot visual correctness as `human_judgment: true`. This verifier visually inspected `shrinking_disc.png` and `night_to_sunrise.png` directly and found no added marketing frame (the rounded corners are the device's own rendered corners, consistent with a raw `adb screencap`), but a full human pass across all 5 images before actual Play Console upload is still warranted.
+**Test:** Install the current signed release build (built from the post-05-06 config) on a real Android device and view the launcher icon under both circle and squircle masks.
+**Expected:** The sun disc reads as a clearly legible, balanced sunrise (sun within sky gradient and hill silhouette) — matching the appearance already approved on the Samsung A25 in 05-05-SUMMARY.md, before the since-reverted 260710-keg regression was ever introduced. It should NOT reproduce UAT Test 1's "just the sun with a yellow background" report.
+**Why human:** Rendering under Android's adaptive-icon OS-level mask crop is inherently a visual, on-device outcome that no grep/build/unit-test check in this repo can observe. The 05-06 revert is a byte-identical restoration of the exact config that was already human-verified — a PASS is the expected outcome — but this exact category of gap (config verified only by grep + build, not a human look) is precisely what let the original regression reach UAT undetected, so an automated verifier marking this VERIFIED on inference alone would repeat that same mistake. One brief on-device look closes this out with certainty.
 
 ### Gaps Summary
 
-No blocking gaps were found. All 4 roadmap Success Criteria are backed by concrete, live-checked evidence (real signing certificate inspected via `keytool`, live privacy-policy URL checked via `curl`, generated icon/screenshot assets confirmed on disk, both PUBLISH requirements cross-referenced against REQUIREMENTS.md with no orphans). The phase's own code review (`05-REVIEW.md`) already found and the team already fixed the one functionally-significant issue (WR-01, icon double safe-zone inset) via quick task `260710-keg`; the remaining code-review items (WR-02 through WR-06) are minor hardening suggestions, not gaps against the phase goal.
+No blocking gaps found. The 05-06 gap-closure plan is a precise, minimal, code-verified revert:
+`pubspec.yaml` no longer overrides the adaptive icon inset (confirmed via direct read and
+`git show`), `ic_launcher.xml` now declares the tool-default `android:inset="16%"` (confirmed via
+direct read), the debug APK builds successfully (re-run independently, not trusted from SUMMARY),
+the store-icon regeneration test passes (re-run independently), and the full 133-test suite passes
+(re-run independently). All three of the phase's other roadmap Success Criteria (signing, store
+listing docs/declaration, on-device countdown proof) were confirmed unaffected by this change —
+`git diff` scoped to commit `299b863` touches only the two icon files.
 
-The two items above are routed to human verification rather than reported as gaps because: (a) the underlying artifacts genuinely exist, are substantive, and are wired correctly — this is not a "stub" or "missing" situation — and (b) the specific question left open (does the *corrected* icon look right at 48dp; do the final screenshots read as clean and representative) is inherently a visual judgment call that no grep/build check can resolve, and one of the two (the icon re-check) has a concrete, traceable reason no human has looked at the post-fix result yet.
+The single remaining item — a fresh on-device visual look at the reverted icon — is routed to
+Human Verification rather than reported as a gap or marked VERIFIED, because (a) the code-level fix
+is unambiguous, minimal, and traceable to a state already once human-approved, so there is no
+artifact/wiring deficiency to report as a gap, and (b) the specific open question (does the icon
+now look like a balanced sunrise on a real launcher, not a flat-yellow sun) is a visual judgment
+call that this verifier cannot make from the repository alone — and is exactly the class of check
+whose absence caused this regression to slip through once already.
 
 ---
 
-_Verified: 2026-07-10T13:12:33Z_
+_Verified: 2026-07-10T15:55:27Z_
 _Verifier: Claude (gsd-verifier)_
