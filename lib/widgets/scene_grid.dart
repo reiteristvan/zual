@@ -96,13 +96,24 @@ class SceneCard extends StatelessWidget {
 /// to reference concrete painter types by name, per D-06) and hands each
 /// [SceneCard] only the painter it needs.
 class SceneGrid extends StatelessWidget {
-  const SceneGrid({super.key, required this.selected, required this.onSelect});
+  const SceneGrid({
+    super.key,
+    required this.selected,
+    required this.onSelect,
+    this.childAspectRatio = 1.35,
+  });
 
   /// The currently selected theme.
   final SceneTheme selected;
 
   /// Invoked with the newly tapped theme; the caller owns selection state.
   final ValueChanged<SceneTheme> onSelect;
+
+  /// The grid cell aspect ratio. Defaults to the design's fixed 1.35;
+  /// callers (e.g. [SetupScreen]'s fit-to-space sizing) may override this to
+  /// reclaim vertical space on short viewports without touching the theme
+  /// mappings or selection-ring keys.
+  final double childAspectRatio;
 
   /// Exact scene-card copy, verbatim from `02-UI-SPEC.md`.
   static const Map<SceneTheme, String> _labels = {
@@ -127,7 +138,7 @@ class SceneGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.35,
+      childAspectRatio: childAspectRatio,
       children: SceneTheme.values.map((theme) {
         return SceneCard(
           preview: _painters[theme]!,

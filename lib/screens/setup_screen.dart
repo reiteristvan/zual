@@ -152,21 +152,40 @@ class _SetupScreenState extends State<SetupScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(22, 12, 22, 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionLabel('How long?'),
-                    _buildDurationGrid(),
-                    if (_showCustom) _buildCustomStepperRow(),
-                    const SizedBox(height: 26),
-                    _buildSectionLabel('Pick a scene'),
-                    SceneGrid(selected: _theme, onSelect: _selectScene),
-                  ],
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final gap = (constraints.maxHeight * 0.03).clamp(12.0, 26.0);
+                  final durationAspectRatio = constraints.maxHeight >= 640
+                      ? 1.1
+                      : 1.2;
+                  final sceneAspectRatio = _computeSceneAspectRatio(
+                    context: context,
+                    availableHeight: constraints.maxHeight,
+                    gap: gap,
+                    durationAspectRatio: durationAspectRatio,
+                  );
+                  return SingleChildScrollView(
+                    key: const ValueKey('setup-scroll'),
+                    padding: const EdgeInsets.fromLTRB(22, 12, 22, 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionLabel('How long?'),
+                        _buildDurationGrid(durationAspectRatio),
+                        if (_showCustom) _buildCustomStepperRow(),
+                        SizedBox(height: gap),
+                        _buildSectionLabel('Pick a scene'),
+                        SceneGrid(
+                          selected: _theme,
+                          onSelect: _selectScene,
+                          childAspectRatio: sceneAspectRatio,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
             _buildFooter(),
@@ -177,11 +196,17 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   /// Fixed header: wordmark + tagline, centered per UI-SPEC (`text-align:
-  /// center` in the Layout A reference markup).
-  Widget _buildHeader() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(24, 52, 24, 8),
-      child: Column(
+  /// center` in the Layout A reference markup). Top padding scales down on
+  /// short viewports (min 24, design default 52) to reclaim height for the
+  /// scroll region below.
+  Widget _buildHeader(BuildContext context) {
+    final topPadding = (MediaQuery.sizeOf(context).height * 0.055).clamp(
+      24.0,
+      52.0,
+    );
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24, topPadding, 24, 8),
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text('Zual', style: AppTokens.wordmark),
@@ -190,6 +215,68 @@ class _SetupScreenState extends State<SetupScreen> {
         ],
       ),
     );
+  }
+
+  /// Computes a fit-to-space `childAspectRatio` for [SceneGrid] so the scene
+  /// picker consumes only the vertical space left over after the duration
+  /// grid, both section labels, the responsive gap, and (when shown) the
+  /// custom stepper row. Clamped to `[1.35, 2.4]`: 1.35 keeps scene cards no
+  /// taller than the design's default; 2.4 prevents ultra-flat cards on tiny
+  /// screens, where the `SingleChildScrollView` safety net then absorbs any
+  /// residual overflow.
+  double _computeSceneAspectRatio({
+    required BuildContext context,
+    required double availableHeight,
+    required double gap,
+    required double durationAspectRatio,
+  }) {
+    final contentWidth = MediaQuery.sizeOf(context).width - 44;
+    final durationCellWidth = (contentWidth - 24) / 3;
+    final durationGridHeight =
+        2 * (durationCellWidth / durationAspectRatio) + 12;
+
+    final sectionLabelHeight =
+        _measureTextHeight(context, AppTokens.sectionLabel) + 14;
+
+    var fixedCost =
+        12 + // scroll padding top
+        4 + // scroll padding bottom
+        (sectionLabelHeight * 2) + // "How long?" + "Pick a scene" labels
+        durationGridHeight +
+        gap;
+
+    if (_showCustom) {
+      fixedCost += _measureStepperRowHeight(context);
+    }
+
+    final availableForScene = availableHeight - fixedCost;
+    final perCellHeight = (availableForScene - 12) / 2;
+    if (perCellHeight <= 0) return 2.4;
+
+    final sceneCellWidth = (contentWidth - 12) / 2;
+    return (sceneCellWidth / perCellHeight).clamp(1.35, 2.4);
+  }
+
+  /// Measures the rendered height of [style] using the current text
+  /// scaling, so the fit-to-space calculation above tracks real font metrics
+  /// instead of a guessed constant.
+  double _measureTextHeight(BuildContext context, TextStyle style) {
+    final painter = TextPainter(
+      text: TextSpan(text: 'Hg', style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    return painter.height;
+  }
+
+  /// Estimates the custom stepper row's total block height (margin +
+  /// padding + row), used only when `_showCustom` is true.
+  double _measureStepperRowHeight(BuildContext context) {
+    final textColumnHeight =
+        _measureTextHeight(context, AppTokens.stepperValue) +
+        _measureTextHeight(context, AppTokens.stepperUnit);
+    final rowHeight = textColumnHeight > 48 ? textColumnHeight : 48.0;
+    return 14 + 28 + rowHeight; // margin-top(14) + padding(14+14) + row
   }
 
   Widget _buildSectionLabel(String label) {
@@ -202,14 +289,17 @@ class _SetupScreenState extends State<SetupScreen> {
   /// 3-column grid of the five duration presets plus the "Custom" cell.
   /// Fixed at 6 cells regardless of [_showCustom] — the grid itself never
   /// reflows; the stepper row is a separate widget rendered below it.
-  Widget _buildDurationGrid() {
+  /// [aspectRatio] is adaptive per available height (1.1 on tall screens,
+  /// 1.2 on short ones) to reclaim vertical space without changing the
+  /// design on normal/tall devices.
+  Widget _buildDurationGrid(double aspectRatio) {
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.1,
+      childAspectRatio: aspectRatio,
       children: [..._presets.map(_buildPresetCard), _buildCustomCard()],
     );
   }
