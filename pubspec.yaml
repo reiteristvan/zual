@@ -50,8 +50,31 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # Generates the full Android adaptive-icon asset set from the
+  # programmatically-rendered sunrise PNGs (05-04-PLAN.md, PUBLISH-02).
+  # Pinned per 05-RESEARCH.md's Standard Stack / Package Legitimacy Audit
+  # (fluttercommunity org, Approved -- no install checkpoint required).
+  flutter_launcher_icons: ^0.14.4
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+# flutter_launcher_icons config (05-04-PLAN.md): PNG-path form for
+# adaptive_icon_background because D-02's background is a gradient, which
+# cannot be expressed as a single hex color.
+#
+# `android: "ic_launcher"` (not "launcher_icon" as in 05-RESEARCH.md's
+# example) so the tool overwrites the existing `ic_launcher` mipmap
+# resource in place -- AndroidManifest.xml already references
+# `@mipmap/ic_launcher` and must not need updating (Rule 1 fix: the
+# research example's name would make the tool rename the resource and
+# rewrite the manifest reference instead).
+flutter_launcher_icons:
+  android: "ic_launcher"
+  min_sdk_android: 24
+  image_path: "assets/icon/icon_foreground.png"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  adaptive_icon_background: "assets/icon/icon_background.png"
 
 # The following section is specific to Flutter packages.
 flutter:
