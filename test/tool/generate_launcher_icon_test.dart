@@ -15,7 +15,7 @@ import 'icon_renderer.dart';
 /// 05-04 must fall back to a live-device screenshot as the icon source
 /// (RESEARCH.md Assumption A1) instead of the programmatic path.
 void main() {
-  const _pngSignature = <int>[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+  const pngSignature = <int>[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
   testWidgets(
     'renderPainterToPng renders SunrisePainter to a valid PNG file '
@@ -29,7 +29,7 @@ void main() {
 
         // The buffer itself is a real, non-empty PNG.
         expect(bytes.length, greaterThan(1000));
-        expect(bytes.sublist(0, 8), equals(_pngSignature));
+        expect(bytes.sublist(0, 8), equals(pngSignature));
 
         // Writing it to disk and reading it back yields an existing,
         // non-empty file with the PNG header intact.
@@ -40,7 +40,7 @@ void main() {
         expect(file.existsSync(), isTrue);
         final readBack = await file.readAsBytes();
         expect(readBack.length, greaterThan(1000));
-        expect(readBack.sublist(0, 8), equals(_pngSignature));
+        expect(readBack.sublist(0, 8), equals(pngSignature));
       });
     },
   );
