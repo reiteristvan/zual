@@ -104,6 +104,12 @@ None yet.
 - [Phase 3, carried to Phase 4]: SceneRenderer's loopPhase resets to 0 on ticker stop/restart (see decision above) — must be addressed when Phase 4 wires Pause/Resume, or decorative loops will visibly snap on resume.
 - [Phase 5]: Play Store Families Policy and target-audience declaration must be re-verified in Play Console at submission time (policy wording changes).
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260710-frr | Fix Setup screen layout overflow on real device (Samsung A25) — How-long presets and scene picker overflow viewport by ~1cm; make responsive so it fits without clipping | 2026-07-10 | b55b887 | [260710-frr-fix-setup-screen-layout-overflow-on-real](./quick/260710-frr-fix-setup-screen-layout-overflow-on-real/) |
+
 ## Deferred Items
 
 Items acknowledged and carried forward from previous milestone close:
@@ -115,5 +121,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-10T08:39:46.161Z
-Stopped at: Completed 05-01-PLAN.md
+Stopped at: Completed quick task 260710-frr: Fix Setup screen layout overflow on real device (Samsung A25)
 Resume file: None
