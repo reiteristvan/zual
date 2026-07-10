@@ -166,7 +166,7 @@ Plans:
   3. A content-rating / target-audience declaration is completed and reviewed against Families Policy considerations.
   4. A release build installs and runs a full countdown on a real Android device.
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 **Mode:** mvp
 
 Plans:
@@ -178,7 +178,7 @@ Plans:
 
 **Wave 2** *(blocked on 05-02 spike)*
 
-- [ ] 05-04-PLAN.md — Icon asset generation: sunrise-motif foreground/background PNGs + flutter_launcher_icons adaptive icon set (PUBLISH-02)
+- [x] 05-04-PLAN.md — Icon asset generation: sunrise-motif foreground/background PNGs + flutter_launcher_icons adaptive icon set (PUBLISH-02)
 
 **Wave 3** *(blocked on 05-01 + 05-04)*
 
@@ -195,4 +195,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Setup Screen | 5/5 | Complete    | 2026-07-07 |
 | 3. Scene Themes | 4/4 | Complete    | 2026-07-07 |
 | 4. Parent Controls & Completion | 5/5 | Complete    | 2026-07-09 |
-| 5. Play Store Readiness | 3/5 | In Progress|  |
+| 5. Play Store Readiness | 4/5 | In Progress|  |
