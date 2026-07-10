@@ -51,7 +51,9 @@ several smaller maintainability/robustness items.
 
 ## Warnings
 
-### WR-01: Launcher icon foreground is very likely rendering too small (double safe-zone padding)
+### WR-01: Launcher icon foreground is very likely rendering too small (double safe-zone padding) — RESOLVED
+
+**Resolved:** Fixed via quick task [260710-keg](../../quick/260710-keg-fix-launcher-icon-double-safe-zone-inset/) (commit `bb8abb0`) — `adaptive_icon_foreground_inset: 0` added to `pubspec.yaml`, icon regenerated, `flutter build apk --debug` verified.
 
 **File:** `pubspec.yaml:72-77` (config) and `test/tool/icon_painters.dart:58-61` (source art)
 **Issue:** `IconForegroundPainter` deliberately pads its sun disc to a 32%-of-width radius
