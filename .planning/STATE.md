@@ -111,6 +111,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260710-frr | Fix Setup screen layout overflow on real device (Samsung A25) — How-long presets and scene picker overflow viewport by ~1cm; make responsive so it fits without clipping | 2026-07-10 | b55b887 | [260710-frr-fix-setup-screen-layout-overflow-on-real](./quick/260710-frr-fix-setup-screen-layout-overflow-on-real/) |
+| 260710-keg | Fix launcher icon double safe-zone inset (WR-01 from 05-REVIEW.md) and generate a composited 512x512 PNG app icon for the Play Console store listing | 2026-07-10 | 45c24cc | [260710-keg-fix-launcher-icon-double-safe-zone-inset](./quick/260710-keg-fix-launcher-icon-double-safe-zone-inset/) |
 
 ## Deferred Items
 
@@ -123,5 +124,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-10T12:18:56.886Z
-Stopped at: Completed quick task 260710-frr: Fix Setup screen layout overflow on real device (Samsung A25)
+Stopped at: Completed quick task 260710-keg: Fix launcher icon double safe-zone inset + generate store-listing icon
 Resume file: None
