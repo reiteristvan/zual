@@ -113,6 +113,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260710-frr | Fix Setup screen layout overflow on real device (Samsung A25) — How-long presets and scene picker overflow viewport by ~1cm; make responsive so it fits without clipping | 2026-07-10 | b55b887 | [260710-frr-fix-setup-screen-layout-overflow-on-real](./quick/260710-frr-fix-setup-screen-layout-overflow-on-real/) |
 | 260710-keg | Fix launcher icon double safe-zone inset (WR-01 from 05-REVIEW.md) and generate a composited 512x512 PNG app icon for the Play Console store listing | 2026-07-10 | 45c24cc | [260710-keg-fix-launcher-icon-double-safe-zone-inset](./quick/260710-keg-fix-launcher-icon-double-safe-zone-inset/) |
+| 260712-h36 | Generate Play Store feature graphic (1024x500 PNG) for Zual — code-composited from the Night to Sunrise scene painter, headless-rendered like the existing store icon | 2026-07-12 | a3b8ddf | [260712-h36-generate-play-store-feature-graphic-1024](./quick/260712-h36-generate-play-store-feature-graphic-1024/) |
 
 ## Deferred Items
 
@@ -125,5 +126,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-12T00:00:00Z
-Stopped at: Phase 5 re-verification closed — user confirmed reverted launcher icon on real device (05-UAT.md Test 3: pass). All 5 phases of milestone v1.0 complete, 8/8 verification truths verified, no human items outstanding. Ready for /gsd-complete-milestone.
+Stopped at: Completed quick task 260712-h36: Generate Play Store feature graphic (1024x500 PNG). Play Console listing now has both required graphics (icon_512.png + feature_graphic.png). All 5 phases of milestone v1.0 complete, 8/8 verification truths verified, no human items outstanding. Ready for /gsd-complete-milestone.
 Resume file: None
