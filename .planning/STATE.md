@@ -105,6 +105,7 @@ None yet.
 - [Phase 3]: Real-device smoothness check (D-03) completed via UAT — confirmed smooth, no jank, on all 4 scenes including the wheel-spoke rotation. Resolved.
 - [Phase 3, carried to Phase 4]: SceneRenderer's loopPhase resets to 0 on ticker stop/restart (see decision above) — must be addressed when Phase 4 wires Pause/Resume, or decorative loops will visibly snap on resume.
 - [Phase 5]: Play Store Families Policy and target-audience declaration must be re-verified in Play Console at submission time (policy wording changes).
+- [Phase 5]: Launcher icon regression (260710-keg 0% inset overcorrection) reverted via gap-closure 05-06 and human-confirmed correct on a real device 2026-07-12. Resolved — 05-VERIFICATION.md now shows 8/8 truths verified, no human verification outstanding.
 
 ### Quick Tasks Completed
 
@@ -123,6 +124,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T12:18:56.886Z
-Stopped at: Completed quick task 260710-keg: Fix launcher icon double safe-zone inset + generate store-listing icon
+Last session: 2026-07-12T00:00:00Z
+Stopped at: Phase 5 re-verification closed — user confirmed reverted launcher icon on real device (05-UAT.md Test 3: pass). All 5 phases of milestone v1.0 complete, 8/8 verification truths verified, no human items outstanding. Ready for /gsd-complete-milestone.
 Resume file: None

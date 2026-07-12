@@ -1,22 +1,20 @@
 ---
 phase: 05-play-store-readiness
-verified: 2026-07-10T15:55:27Z
-status: human_needed
-score: 4/4 roadmap truths verified, 4/4 gap-closure (05-06) truths verified at code level (1 of those 4 remains visual/human-judgment)
+verified: 2026-07-12T00:00:00Z
+status: verified
+score: 8/8 truths verified (4/4 roadmap, 4/4 gap-closure — human visual check now confirmed)
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: human_needed
-  previous_score: 4/4 roadmap truths verified (2 items flagged for human re-confirmation)
+  previous_score: 7/8 truths verified at code level (1 visual/human-judgment truth outstanding)
   gaps_closed:
     - "UAT Test 1 gap (major): 05-06 removed `adaptive_icon_foreground_inset: 0` from pubspec.yaml, restoring the flutter_launcher_icons tool default of 16%. ic_launcher.xml now declares android:inset=\"16%\" (confirmed via direct read), exactly reverting to the byte-identical pre-260710-keg config that was on-device-verified acceptable on a real Samsung A25 in 05-05-SUMMARY.md."
     - "UAT Test 2 (screenshot quality pass): reported result: pass in 05-UAT.md — no code action was required, already satisfied."
+    - "UAT Test 3 (human re-confirmation of reverted icon on real device): user confirmed on 2026-07-12 the launcher icon reads as a balanced sunrise under the OS mask crop, not the flat-yellow regression. Phase 5 human verification is now fully closed."
   gaps_remaining: []
   regressions: []
-human_verification:
-  - test: "Install the current signed release build (post-05-06 revert) on a real Android device and look at the launcher icon under both circle and squircle masks."
-    expected: "The sun disc reads as a clearly legible, appropriately-sized shape at 48dp (the balanced sunrise), not the near-edge-to-edge flat-yellow rendering UAT Test 1 reported against the since-reverted 0%-inset config."
-    why_human: "This is the exact class of truth (visual appearance under Android's OS-level adaptive-icon mask crop) that grep/build checks cannot see, and is the same category of miss that let the original regression ship in the first place (05-REVIEW.md's own retrospective: the 260710-keg 'fix' was verified only by config-level grep + a debug build, not a human look, and that is precisely why it reached UAT before being caught). The 05-06 revert is a byte-identical restoration of the exact config (android:inset=\"16%\", unchanged icon_foreground.png/icon_background.png source PNGs) that was already human-verified acceptable on a physical Samsung A25 in 05-05-SUMMARY.md — so a PASS is expected — but no automated check in this repo can render Android's adaptive-icon mask crop, so a fresh on-device look is still the only way to close this out with certainty rather than by inference."
+human_verification: []
 ---
 
 # Phase 5: Play Store Readiness Verification Report (Re-verification after 05-06 gap closure)
@@ -108,11 +106,10 @@ hardening recommendation, not part of 05-06's scope.
 
 ### Human Verification Required
 
-### 1. Re-confirm the reverted adaptive launcher icon on a real device launcher
-
-**Test:** Install the current signed release build (built from the post-05-06 config) on a real Android device and view the launcher icon under both circle and squircle masks.
-**Expected:** The sun disc reads as a clearly legible, balanced sunrise (sun within sky gradient and hill silhouette) — matching the appearance already approved on the Samsung A25 in 05-05-SUMMARY.md, before the since-reverted 260710-keg regression was ever introduced. It should NOT reproduce UAT Test 1's "just the sun with a yellow background" report.
-**Why human:** Rendering under Android's adaptive-icon OS-level mask crop is inherently a visual, on-device outcome that no grep/build/unit-test check in this repo can observe. The 05-06 revert is a byte-identical restoration of the exact config that was already human-verified — a PASS is the expected outcome — but this exact category of gap (config verified only by grep + build, not a human look) is precisely what let the original regression reach UAT undetected, so an automated verifier marking this VERIFIED on inference alone would repeat that same mistake. One brief on-device look closes this out with certainty.
+None. The one outstanding item (re-confirm the reverted adaptive launcher icon on a real device
+launcher) was confirmed by the user on 2026-07-12: the icon reads as a balanced sunrise under the
+OS-level adaptive-icon mask crop, not the flat-yellow regression UAT Test 1 reported. Recorded as a
+pass in 05-UAT.md Test 3.
 
 ### Gaps Summary
 
@@ -123,17 +120,10 @@ direct read), the debug APK builds successfully (re-run independently, not trust
 the store-icon regeneration test passes (re-run independently), and the full 133-test suite passes
 (re-run independently). All three of the phase's other roadmap Success Criteria (signing, store
 listing docs/declaration, on-device countdown proof) were confirmed unaffected by this change —
-`git diff` scoped to commit `299b863` touches only the two icon files.
-
-The single remaining item — a fresh on-device visual look at the reverted icon — is routed to
-Human Verification rather than reported as a gap or marked VERIFIED, because (a) the code-level fix
-is unambiguous, minimal, and traceable to a state already once human-approved, so there is no
-artifact/wiring deficiency to report as a gap, and (b) the specific open question (does the icon
-now look like a balanced sunrise on a real launcher, not a flat-yellow sun) is a visual judgment
-call that this verifier cannot make from the repository alone — and is exactly the class of check
-whose absence caused this regression to slip through once already.
+`git diff` scoped to commit `299b863` touches only the two icon files. The final human visual check
+on the reverted icon has now also passed, closing out Phase 5 with no remaining gaps.
 
 ---
 
-_Verified: 2026-07-10T15:55:27Z_
+_Verified: 2026-07-12T00:00:00Z (re-verified after human confirmation)_
 _Verifier: Claude (gsd-verifier)_
