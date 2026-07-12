@@ -61,6 +61,19 @@ class _SetupScreenState extends State<SetupScreen> {
   /// The five fixed preset durations (in minutes) offered on this screen.
   static const List<int> _presets = [1, 5, 10, 15, 30];
 
+  /// The maximum width the setup content column is allowed to occupy. The
+  /// whole design was tuned to the `design/README.md` reference frame (402px
+  /// wide, phone-class); left unbounded, the two grids stretch to the full
+  /// screen width on tablets, so the grid CELLS grow while their fixed-size
+  /// interior content (preset fonts, scene thumbnail) does not — producing
+  /// oversized preset squares with tiny text and scene artwork that fills only
+  /// a fraction of the card. Capping the column to a phone-class width and
+  /// centering it keeps every cell — and therefore its interior balance —
+  /// phone-proportioned on tablets. Chosen slightly above the reference frame
+  /// so no real phone (which are all narrower) is ever affected; only
+  /// genuinely wide screens (tablets) are reined in.
+  static const double _maxContentWidth = 440;
+
   late int _durationMin;
 
   /// The currently selected scene theme, seeded from [widget.initialTheme]
@@ -152,14 +165,22 @@ class _SetupScreenState extends State<SetupScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, bodyConstraints) {
-            final contentWidth = MediaQuery.sizeOf(context).width - 44;
+            // Cap the content column to a phone-class width and center it, so
+            // grid cells stay phone-proportioned on tablets (see
+            // [_maxContentWidth]). On phones this is a no-op (the screen is
+            // narrower than the cap, so [layoutWidth] == the full width).
+            final layoutWidth = bodyConstraints.maxWidth < _maxContentWidth
+                ? bodyConstraints.maxWidth
+                : _maxContentWidth;
+            final contentWidth = layoutWidth - 44;
             final footerHeight = _measureFooterHeight(context);
 
             // Baseline header top padding per the design formula: scales
             // down on short viewports (min 24, design default 52).
             final baselineHeaderTop = (MediaQuery.sizeOf(context).height * 0.055)
                 .clamp(24.0, 52.0);
-            final baselineHeaderHeight = baselineHeaderTop + 8 + _headerContentHeight(context);
+            final baselineHeaderHeight =
+                baselineHeaderTop + 8 + _headerContentHeight(context, layoutWidth - 48);
             final baselineScrollRegionHeight =
                 bodyConstraints.maxHeight - baselineHeaderHeight - footerHeight;
 
@@ -198,32 +219,38 @@ class _SetupScreenState extends State<SetupScreen> {
                 ? (baselineHeaderTop - shortfall).clamp(16.0, 52.0)
                 : baselineHeaderTop;
 
-            return Column(
-              children: [
-                _buildHeader(headerTopPadding),
-                Expanded(
-                  child: SingleChildScrollView(
-                    key: const ValueKey('setup-scroll'),
-                    padding: const EdgeInsets.fromLTRB(22, 12, 22, 4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionLabel('How long?'),
-                        _buildDurationGrid(durationAspectRatio),
-                        if (_showCustom) _buildCustomStepperRow(),
-                        SizedBox(height: gap),
-                        _buildSectionLabel('Pick a scene'),
-                        SceneGrid(
-                          selected: _theme,
-                          onSelect: _selectScene,
-                          childAspectRatio: sceneAspectRatio,
+            return Center(
+              child: SizedBox(
+                width: layoutWidth,
+                height: bodyConstraints.maxHeight,
+                child: Column(
+                  children: [
+                    _buildHeader(headerTopPadding),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        key: const ValueKey('setup-scroll'),
+                        padding: const EdgeInsets.fromLTRB(22, 12, 22, 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionLabel('How long?'),
+                            _buildDurationGrid(durationAspectRatio),
+                            if (_showCustom) _buildCustomStepperRow(),
+                            SizedBox(height: gap),
+                            _buildSectionLabel('Pick a scene'),
+                            SceneGrid(
+                              selected: _theme,
+                              onSelect: _selectScene,
+                              childAspectRatio: sceneAspectRatio,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                    _buildFooter(),
+                  ],
                 ),
-                _buildFooter(),
-              ],
+              ),
             );
           },
         ),
@@ -258,8 +285,7 @@ class _SetupScreenState extends State<SetupScreen> {
   /// width (screen width minus its 24+24 horizontal padding): the tagline
   /// string is wide enough to wrap to two lines on narrow screens, and an
   /// unconstrained measurement would silently under-count that.
-  double _headerContentHeight(BuildContext context) {
-    final headerContentWidth = MediaQuery.sizeOf(context).width - 48;
+  double _headerContentHeight(BuildContext context, double headerContentWidth) {
     return _measureTextHeight(
           context,
           'Zual',

@@ -53,16 +53,25 @@ class SceneCard extends StatelessWidget {
           alignment: null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  AppTokens.sceneThumbRadius,
-                ),
-                child: SizedBox(
-                  height: 74,
-                  width: double.infinity,
-                  child: CustomPaint(painter: preview),
+              // Fill the card's vertical space rather than a fixed 74px box:
+              // the grid cell grows on wider screens (tablets), and a fixed
+              // thumbnail height would then leave the artwork covering only a
+              // fraction of the card. Expanding makes the preview scale to the
+              // card proportionally at any cell size. On phones the scene
+              // aspect ratio already caps the cell height at ~thumbnail+label
+              // (see SetupScreen._maxSafeSceneAspectRatio, which still uses 74
+              // as the minimum thumbnail height), so the rendered thumbnail
+              // stays ~74px there — no phone regression.
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    AppTokens.sceneThumbRadius,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CustomPaint(painter: preview),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
