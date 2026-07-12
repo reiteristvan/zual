@@ -34,11 +34,13 @@ without any numbers or words, roughly how much longer they have to wait.
 - ✓ Car on a Road theme: car drives a path toward a destination, arrives at time-up, wheels visibly spin — Phase 3 (gap-closure 03-04)
 - ✓ Completed state: soft two-tone chime (mute-gated, plays once), theme settles into end visual, breathing "All done" pill returns to Setup on tap — Phase 4
 - ✓ Parent controls overlay: hidden ~850ms long-press on running screen opens a blurred-scrim bottom sheet (Pause/Resume, End timer, Keep watching, mute toggle) — replaces the interim visible back `IconButton` from Phase 3 — Phase 4
+- ✓ Pixel-accurate implementation of design tokens (colors, typography, radii, spacing, shadows) from `design/README.md` — Phase 2 (fonts, spacing, pressed-state colors), extended post-milestone by a tablet-responsive layout fix (Setup screen content column capped/centered, scene-card thumbnails scale to fill) so token fidelity holds across phone and tablet form factors, not just the 402px phone reference frame
+- ✓ Play Store publish readiness: app icon, store listing assets, versioning — v1.0 (Phase 5: real `applicationId` + production signing, adaptive launcher icon, screenshots, privacy policy, content-rating answer sheet; extended post-milestone with a code-composited 1024x500 feature graphic reusing the real Night to Sunrise scene painter)
 
 ### Active
 
-- [ ] Pixel-accurate implementation of design tokens (colors, typography, radii, spacing, shadows) from `design/README.md`
-- [ ] Play Store publish readiness: app icon, store listing assets, versioning
+- [ ] Submit the v1.0 build to Google Play Console and publish (all readiness assets — signing, icon, screenshots, feature graphic, privacy policy, content-rating answers — are shipped; the actual Play Console submission is a manual next step outside this codebase)
+- [ ] v2 candidates carried from `.planning/milestones/v1.0-REQUIREMENTS.md`: iOS support (PLAT-01), Web support (PLAT-02, already scaffolded), colorblind-safe audit of the Shrinking Disc's color zones (A11Y-01) — re-evaluate scope at next milestone kickoff
 
 ### Out of Scope
 
@@ -56,7 +58,10 @@ without any numbers or words, roughly how much longer they have to wait.
 - **Design source of truth**: `design/README.md` plus two HTML prototypes (`design/Zual.dc.html` — full interactive prototype; `design/Zual - App Screens.dc.html` — annotated screen-flow board). These are high-fidelity (hifi) — colors, typography, spacing, radii, easing, and timings are final and exact, but the HTML/CSS itself is a reference to recreate using Flutter idioms (CustomPainter/Canvas for scene rendering, AnimationController for the progress-driven loop), not code to port line-for-line.
 - **Design tokens**: full color palette, typography (Baloo 2 + Quicksand), radii, shadows, spacing, and animation timings are specified in `design/README.md` — treat as final.
 - **Sound**: end chime is two soft sine tones (D5 → G5) with a specific envelope, originally generated via Web Audio API — implemented as a pure-Dart WAV synthesizer (`lib/audio/chime_synth.dart`, no bundled asset) played through an `audioplayers`-backed adapter, Phase 4.
-- **No image assets** — all visuals in the reference design are built from shape primitives (circles, gradients, rounded rects, CSS-border triangles); Flutter implementation should use CustomPainter/Canvas or similar vector approaches rather than bitmap assets.
+- **No image assets** — all visuals in the reference design are built from shape primitives (circles, gradients, rounded rects, CSS-border triangles); Flutter implementation should use CustomPainter/Canvas or similar vector approaches rather than bitmap assets. This extended to Play Store binary assets too: the store icon and feature graphic are both headlessly rendered from the app's real `CustomPainter`s (`test/tool/icon_renderer.dart`), not hand-designed in an external tool.
+- **v1.0 shipped 2026-07-12** — 5 phases, 22 v1 requirements, ~3,874 LOC Dart (`lib/`), 134 passing tests. Codebase state at ship: Flutter/Dart only, no state-management library beyond `provider` + `ChangeNotifier`, no backend.
+- **Known non-blocking tech debt** (from `05-REVIEW.md`, carried into v1.0 as accepted risk, not gaps): unclosed `FileInputStream` and no build-time gate against accidental debug-signed release builds in `android/app/build.gradle.kts`; the original launcher-icon generator (`test/tool/generate_launcher_icon_test.dart`) still silently overwrites its committed PNGs on every `flutter test` run (the newer feature-graphic generator explicitly does not repeat this pattern — see `test/tool/generate_feature_graphic.dart` / `feature_graphic_test.dart`).
+- **Tablet form factor** — the design source (`design/README.md`) only specifies a 402px phone reference frame; tablet-width rendering was an untested gap discovered post-milestone (not a regression) and fixed by capping the Setup screen's content column to a phone-proportioned max width rather than stretching it. Future scene/screen work should keep this in mind — "responsive" in this codebase has meant "don't overflow on a small phone," not "scale gracefully to tablet," until this fix.
 
 ## Constraints
 
@@ -84,6 +89,9 @@ without any numbers or words, roughly how much longer they have to wait.
 | `audioplayers` package approved via direct pub.dev verification (blue-fire.xyz verified publisher, 1M+ downloads) at a blocking human checkpoint before install | Pub.dev packages fall outside automated npm/pip/cargo legitimacy tooling, so new pub dependencies get a manual look before `flutter pub add` | ✓ Good — Phase 4 |
 | `SceneRenderer`'s decorative loop phase accumulates an offset across `Ticker` stop/restart segments instead of resetting to 0 | Carried-forward Phase 3 defect (D-10): loops would visibly snap back to their start phase every time Pause/Resume stopped and restarted the ticker | ✓ Good — Phase 4 |
 | Parent Controls sheet buttons use the codebase's `PressableSurface` widget (not plain `ElevatedButton`) | Code review (WR-03) found plain `ElevatedButton` never applied the UI-SPEC's locked pressed-state colors; `PressableSurface` is the established pattern for that | ✓ Good — Phase 4 code review fix |
+| Launcher icon: revert `flutter_launcher_icons`' `adaptive_icon_foreground_inset` to the tool's 16% default instead of 0% | UAT caught the 0%-inset "fix" (WR-01) overcorrecting — Android's adaptive-icon mask crop stacks with the app-level inset, so removing the inset entirely made the sun disc fill ~96% of the visible viewport instead of a balanced sunrise; reverted to the state already human-verified on a physical Samsung A25 | ✓ Good — Phase 5 gap-closure 05-06, human-reconfirmed on-device 2026-07-12 |
+| Play Store feature graphic (1024x500) generated by reusing the real `SunrisePainter` + `renderPainterToPng` verbatim, via a non-`_test.dart` generator paired with a read-only drift-lock `_test.dart` | Keeps the graphic pixel-consistent with the shipping app (no separately hand-designed asset) and explicitly avoids the icon generator's flagged anti-pattern of silently overwriting a committed binary on every `flutter test` run (05-REVIEW.md WR-04/WR-05) | ✓ Good — quick task 260712-h36 |
+| Setup screen content column capped at a phone-proportioned max width (440px) and centered, instead of stretching to full screen width on tablets; scene-card thumbnail changed from a fixed 74px box to `Expanded` | Root cause of a tablet-only layout bug: cell dimensions grew with screen width but interior content (preset fonts, thumbnail size) was fixed, so tablets got oversized presets with tiny text and scene art that filled only a fraction of its card. Design source only ever specified a 402px phone frame — this was a pre-existing untested gap, not a regression | ✓ Good — debug session `tablet-setup-layout-scaling`, human-confirmed on tablet + phone |
 
 ## Evolution
 
@@ -103,4 +111,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-09 after Phase 4: Parent Controls & Completion*
+*Last updated: 2026-07-12 after v1.0 milestone shipped*
