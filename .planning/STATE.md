@@ -88,7 +88,7 @@ None yet.
 | 260710-frr | Fix Setup screen layout overflow on real device (Samsung A25) — How-long presets and scene picker overflow viewport by ~1cm; make responsive so it fits without clipping | 2026-07-10 | b55b887 | [260710-frr-fix-setup-screen-layout-overflow-on-real](./quick/260710-frr-fix-setup-screen-layout-overflow-on-real/) |
 | 260710-keg | Fix launcher icon double safe-zone inset (WR-01 from 05-REVIEW.md) and generate a composited 512x512 PNG app icon for the Play Console store listing | 2026-07-10 | 45c24cc | [260710-keg-fix-launcher-icon-double-safe-zone-inset](./quick/260710-keg-fix-launcher-icon-double-safe-zone-inset/) |
 | 260712-h36 | Generate Play Store feature graphic (1024x500 PNG) for Zual — code-composited from the Night to Sunrise scene painter, headless-rendered like the existing store icon | 2026-07-12 | a3b8ddf | [260712-h36-generate-play-store-feature-graphic-1024](./quick/260712-h36-generate-play-store-feature-graphic-1024/) |
-| 260819-dsg | Rewrite README.md to describe the real Zual app and refresh the stale scaffold-era sections of .claude/CLAUDE.md plus their .planning/codebase/ source files (STACK, ARCHITECTURE, CONVENTIONS) | 2026-08-19 | _pending_ | [260819-dsg-rewrite-readme-and-refresh-stale-docs](./quick/260819-dsg-rewrite-readme-and-refresh-stale-docs/) |
+| 260819-dsg | Rewrite README.md to describe the real Zual app and refresh the stale scaffold-era sections of .claude/CLAUDE.md plus their .planning/codebase/ source files (STACK, ARCHITECTURE, CONVENTIONS) | 2026-08-19 | f0b29cd | [260819-dsg-rewrite-readme-and-refresh-stale-docs](./quick/260819-dsg-rewrite-readme-and-refresh-stale-docs/) |
 
 ## Deferred Items
 
